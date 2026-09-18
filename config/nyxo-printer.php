@@ -24,10 +24,21 @@ return [
     |
     | Public route where client workstations can request the desktop agent
     | setup file. If the file is not hosted locally, it redirects to the
-    | official download portal at https://printer.nyxo.app.
+    | official portal URL.
     |
     */
     'download_route' => 'downloads/Nyxo_Universal_Printer_Setup_Win.exe',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Official Web Portal / Download URL
+    |--------------------------------------------------------------------------
+    |
+    | The official URL where users and developers can download the desktop
+    | agent, claim licenses, or access documentation.
+    |
+    */
+    'portal_url' => env('NYXO_PRINTER_PORTAL_URL', 'https://printer.nyxo.app'),
 
     /*
     |--------------------------------------------------------------------------

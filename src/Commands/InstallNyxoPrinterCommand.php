@@ -71,7 +71,8 @@ class InstallNyxoPrinterCommand extends Command
                 $this->line('   <fg=blue>ℹ</> Installer already exists in public/downloads (use --force to overwrite).');
             }
         } else {
-            $this->line('   <fg=blue>ℹ</> Download the desktop agent installer from the official portal: <fg=yellow>https://printer.nyxo.app</>');
+            $portalUrl = (string) config('nyxo-printer.portal_url', 'https://printer.nyxo.app');
+            $this->line("   <fg=blue>ℹ</> Download the desktop agent installer from the official portal: <fg=yellow>{$portalUrl}</>");
         }
 
         // 5. Ask to run migrations

@@ -11,7 +11,7 @@ Route::get(config('nyxo-printer.download_route', 'downloads/Nyxo_Universal_Print
     $path = file_exists($publishedPath) ? $publishedPath : $packagePath;
 
     if (! file_exists($path)) {
-        return redirect()->away('https://printer.nyxo.app');
+        return redirect()->away(config('nyxo-printer.portal_url', 'https://printer.nyxo.app'));
     }
 
     return response()->download($path, 'Nyxo_Universal_Printer_Setup_Win.exe');
