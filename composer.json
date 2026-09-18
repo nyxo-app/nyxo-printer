@@ -1,0 +1,55 @@
+{
+    "name": "nyxo-app/nyxo-printer",
+    "description": "Universal silent printing subsystem for Laravel applications with support for thermal receipt printers (ESC/POS) and standard A4 printers.",
+    "keywords": [
+        "laravel",
+        "printer",
+        "thermal-printer",
+        "escpos",
+        "pos",
+        "receipt",
+        "silent-printing",
+        "ticket",
+        "pdf",
+        "nyxo"
+    ],
+    "homepage": "https://github.com/nyxo-app/nyxo-printer",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nyxo Development Team",
+            "email": "info@nyxo.dev",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
+        "illuminate/database": "^10.0|^11.0|^12.0|^13.0",
+        "illuminate/console": "^10.0|^11.0|^12.0|^13.0",
+        "illuminate/http": "^10.0|^11.0|^12.0|^13.0",
+        "illuminate/events": "^10.0|^11.0|^12.0|^13.0",
+        "mike42/escpos-php": "^4.0"
+    },
+    "suggest": {
+        "livewire/livewire": "Required to use the interactive Livewire print modal (<livewire:nyxo-printer-modal />)",
+        "barryvdh/laravel-dompdf": "Required for direct Blade to A4 PDF in-memory rendering"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nyxo\\Printer\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Nyxo\\Printer\\NyxoPrinterServiceProvider"
+            ],
+            "aliases": {
+                "NyxoPrinter": "Nyxo\\Printer\\Facades\\NyxoPrinter"
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

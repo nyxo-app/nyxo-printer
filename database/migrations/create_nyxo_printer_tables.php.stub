@@ -1,0 +1,73 @@
+<?php
+
+declare(strict_types=1);
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Ejecuta las migraciones del subsistema de impresión Nyxo.
+     */
+    public function up(): void
+    {
+        $nodesTable = config('nyxo-printer.tables.nodes', 'printer_nodes');
+        $jobsTable = config('nyxo-printer.tables.jobs', 'print_jobs');
+        $tenantColumn = config('nyxo-printer.tenant_column', 'empresa_id');
+
+        // 1. Tabla: printer_nodes (Nodos o puestos físicos de impresión)
+        if (! Schema::hasTable($nodesTable)) {
+            Schema::create($nodesTable, function (Blueprint $table) use ($tenantColumn) {
+                $table->id();
+                $table->string('name', 100);
+                $table->string('print_token', 80)->unique();
+                $table->string('pairing_code', 10)->nullable()->index();
+
+                if ($tenantColumn) {
+                    $table->unsignedBigInteger($tenantColumn)->nullable()->index();
+                }
+
+                $table->timestamp('last_ping_at')->nullable()->index();
+                $table->boolean('is_active')->default(true);
+                $table->timestamps();
+            });
+        }
+
+        // 2. Tabla: print_jobs (Cola atómica de trabajos de impresión)
+        if (! Schema::hasTable($jobsTable)) {
+            Schema::create($jobsTable, function (Blueprint $table) use ($nodesTable) {
+                $table->id();
+                $table->foreignId('printer_node_id')->constrained($nodesTable)->cascadeOnDelete();
+                $table->string('format', 50)->default('a4'); // 'a4', 'ticket_80mm', 'ticket_58mm', 'raw'
+                $table->enum('content_type', [
+                    'pdf_base64',       // Para impresoras convencionales A4/Carta
+                    'escpos_base64',    // Para impresoras térmicas nativas ESC/POS
+                    'raw_text',         // Para impresoras matriciales/de impacto
+                    'json_structured',   // Formato legacy estructurado
+                ])->default('pdf_base64');
+                $table->longText('content');
+                $table->enum('status', ['pending', 'processing', 'printed', 'failed'])->default('pending');
+                $table->unsignedSmallInteger('attempts')->default(0);
+                $table->text('error_message')->nullable();
+                $table->timestamps();
+
+                // Índice compuesto de alta velocidad para la consulta de Polling concurrente
+                $table->index(['printer_node_id', 'status', 'created_at']);
+            });
+        }
+    }
+
+    /**
+     * Revierte las migraciones.
+     */
+    public function down(): void
+    {
+        $jobsTable = config('nyxo-printer.tables.jobs', 'print_jobs');
+        $nodesTable = config('nyxo-printer.tables.nodes', 'printer_nodes');
+
+        Schema::dropIfExists($jobsTable);
+        Schema::dropIfExists($nodesTable);
+    }
+};
