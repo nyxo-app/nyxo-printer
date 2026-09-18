@@ -11,7 +11,7 @@ Route::get(config('nyxo-printer.download_route', 'downloads/Nyxo_Universal_Print
     $path = file_exists($publishedPath) ? $publishedPath : $packagePath;
 
     if (! file_exists($path)) {
-        abort(404, 'El instalador de Nyxo Universal Printer no se encuentra disponible.');
+        return redirect()->away('https://printer.nyxo.app');
     }
 
     return response()->download($path, 'Nyxo_Universal_Printer_Setup_Win.exe');

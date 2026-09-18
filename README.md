@@ -1,211 +1,302 @@
 # 🖨️ Nyxo Universal Printer for Laravel
 
-[![Latest Version on Packagist](https://img.shields.io/badge/package-nyxo--app%2Fnyxo--printer-blue.svg)](https://packagist.org/packages/nyxo-app/nyxo-printer)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE.md)
-[![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-indigo.svg)](https://php.net)
-[![Laravel Version](https://img.shields.io/badge/Laravel-10%20%7C%2011%20%7C%2012%20%7C%2013-red.svg)](https://laravel.com)
+<p align="center">
+  <a href="https://printer.nyxo.app">
+    <img src="https://raw.githubusercontent.com/nyxo-app/nyxo-printer/main/art/banner.png" alt="Nyxo Universal Printer Banner" width="100%" onerror="this.style.display='none'">
+  </a>
+</p>
 
-**Nyxo Universal Printer** es un subsistema completo y desacoplado para Laravel que permite la **impresión directa y silenciosa** hacia impresoras locales (hojas A4 convencionales y comanderas térmicas de 80mm/58mm ESC/POS) a través de un agente de escritorio para Windows, **sin ventanas emergentes de navegador (`Ctrl+P`), sin problemas de certificados SSL y con emulador visual incluido para desarrollo**.
+<p align="center">
+  <strong>Silent Thermal Receipt (ESC/POS) & A4 PDF Printing for Modern Laravel Applications.</strong><br>
+  Zero browser popups (`Ctrl+P`), zero Java dependencies, zero SSL mixed-content issues, and an in-screen visual emulator for rapid development.
+</p>
+
+<p align="center">
+  <a href="https://packagist.org/packages/nyxo-app/nyxo-printer"><img src="https://img.shields.io/packagist/v/nyxo-app/nyxo-printer.svg?style=flat-square&color=6366f1" alt="Latest Version on Packagist"></a>
+  <a href="https://packagist.org/packages/nyxo-app/nyxo-printer"><img src="https://img.shields.io/packagist/dt/nyxo-app/nyxo-printer.svg?style=flat-square&color=10b981" alt="Total Downloads"></a>
+  <a href="LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="License: MIT"></a>
+  <a href="https://php.net"><img src="https://img.shields.io/badge/PHP-8.2%2B-8b5cf6.svg?style=flat-square" alt="PHP Version"></a>
+  <a href="https://laravel.com"><img src="https://img.shields.io/badge/Laravel-10%20%7C%2011%20%7C%2012%20%7C%2013-f43f5e.svg?style=flat-square" alt="Laravel Support"></a>
+  <a href="https://printer.nyxo.app"><img src="https://img.shields.io/badge/Website-printer.nyxo.app-0284c7.svg?style=flat-square" alt="Official Website"></a>
+</p>
+
+<p align="center">
+  <a href="#-quickstart-guide">Quickstart</a> •
+  <a href="#-features">Features</a> •
+  <a href="#-desktop-agent-download">Desktop Agent</a> •
+  <a href="#-code-examples">Examples</a> •
+  <a href="#-livewire-integration">Livewire</a> •
+  <a href="README.es.md">Versión en Español 🇪🇸</a>
+</p>
 
 ---
 
-## 🌟 Características Principales
+## ⚡ The Problem vs. The Nyxo Solution
 
-* 🚀 **Impresión Silenciosa Instantánea:** Sin cuadros de diálogo ni intervención del usuario.
-* 🧾 **Motor Fluido ESC/POS:** Construye tickets con sintaxis semántica encadenable (`title`, `text`, `table`, `total`, `qr`, `barcode`, `openDrawer`, `beep`, `cut`).
-* 📄 **Soporte Nativo A4 PDF:** Envía documentos PDF completos a impresoras convencionales con una sola línea de código.
-* 📱 **Doble Compatibilidad QR:** Soporte nativo por hardware ESC/POS y fallback gráfico para comanderas económicas.
-* 🖥️ **Emulador / Previsualización Visual:** Prueba y diseña tickets en pantalla (`preview()`) sin tener una comandera física conectada.
-* ⚡ **Control de Concurrencia y Resiliencia:** Bloqueo de transacciones atómicas (`lockForUpdate`) y rescate automático de trabajos huérfanos por corte de luz.
-* 🗄️ **Mantenimiento Automatizado (Prunable):** Purgado automático de trabajos antiguos para mantener la base de datos veloz.
-* 🎨 **Componente Livewire 3/4 Incluido:** Modal con diseño Tailwind CSS y selector de puestos con indicador online/offline en vivo.
+Printing physical receipts, kitchen orders, barcodes, or A4 invoices from modern cloud web applications (Laravel, Livewire, Vue, React, Inertia) is traditionally painful:
+
+| The Traditional Web Printing Pain | The Nyxo Universal Printer Solution |
+| :--- | :--- |
+| ❌ **`window.print()`:** Forces browser dialogs (`Ctrl+P`), freezes cashiers, and requires manual Enter keystrokes. | 🚀 **100% Silent Instant Printing:** Dispatches directly to hardware in **0.2 seconds** without user intervention. |
+| ❌ **Mixed Content / SSL Blocks:** Cloud HTTPS apps cannot connect to plain HTTP `localhost` or local LAN printer IPs. | 🛡️ **Zero SSL Certificates Required:** Cloud applications enqueue jobs safely via standard REST API; the local desktop agent pulls them seamlessly. |
+| ❌ **Java & Certificate Hell (QZ Tray):** Demands heavy JRE installations on client terminals and self-signed certs. | 🪶 **Native Lightweight Desktop Agent:** Native Windows spooler (`winspool.drv`) & SumatraPDF integration. No Java required. |
+| ❌ **Perpetual Monthly Subscriptions (PrintNode):** Expensive recurring monthly charges for every single terminal. | 🎁 **Developer Friendly:** 100% Free for Local Development (`localhost` / `*.test`) + 1 Free Seat for production. |
+| ❌ **Wasted Paper During Development:** You need a physical printer on your desk just to adjust ticket layout. | 🖥️ **In-Screen Visual Emulator:** Preview and debug thermal tickets in HTML or on a virtual POS screen without wasting paper. |
 
 ---
 
-## 📦 Instalación
+## 🏗️ Architecture & How It Works
 
-### 1. Requerir el paquete vía Composer
+```text
+┌────────────────────────────────────────────────────────────────────────┐
+│                   YOUR LARAVEL APPLICATION (Cloud SaaS)                │
+│                                                                        │
+│   NyxoPrinter::to($cashierNode)                                        │
+│       ->title('COFFEE SHOP')                                           │
+│       ->table($items)                                                  │
+│       ->total($amount)                                                 │
+│       ->qr('https://invoice.gov/123')                                  │
+│       ->openDrawer()                                                   │
+│       ->cut()                                                          │
+│       ->send();                                                        │
+│                                                                        │
+│   Saves atomic binary payload to DB with lockForUpdate() concurrency   │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ Polling via Secure Token (X-Tenant-Token)
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│             NYXO UNIVERSAL PRINTER AGENT (Client PC / POS)             │
+│                 Download from: https://printer.nyxo.app                │
+│                                                                        │
+│   - Pulls print jobs silently in background                            │
+│   - Free unlimited printing on localhost & *.test                      │
+│   - Injects RAW ESC/POS commands directly to Windows Spooler           │
+│   - Injects A4 PDFs silently via background SumatraPDF                 │
+└───────────────────┬───────────────────────────────┬────────────────────┘
+                    │                               │
+                    ▼                               ▼
+    ┌───────────────────────────────┐   ┌───────────────────────────────┐
+    │  THERMAL RECEIPT PRINTER      │   │  CONVENTIONAL A4 PRINTER      │
+    │  (EPSON, XPrinter, POS-80)    │   │  (Laser, Inkjet, Office)      │
+    │  • 80mm / 58mm Paper          │   │  • Invoices & Packing Slips   │
+    │  • Automatic Guillotine Cut   │   │  • Contracts & Delivery Notes │
+    │  • RJ11 Cash Drawer Kick      │   │  • High quality PDF output    │
+    └───────────────────────────────┘   └───────────────────────────────┘
+```
+
+---
+
+## 🖥️ Desktop Agent Download
+
+To print to physical USB, Network, or Bluetooth printers silently, the client Windows computer runs the **Nyxo Universal Printer Agent**.
+
+> ### ⬇️ [Download the Windows Desktop Agent from printer.nyxo.app](https://printer.nyxo.app)
+> 
+> * **Localhost Grace:** 100% free and unlimited when testing on `localhost`, `127.0.0.1`, or `*.test`.
+> * **Free Developer Tier:** Claim **1 Free Terminal Seat** for your first production cashier terminal at [printer.nyxo.app](https://printer.nyxo.app) (no credit card required).
+
+---
+
+## 📦 Installation
+
+### 1. Require via Composer
 
 ```bash
 composer require nyxo-app/nyxo-printer
 ```
 
-*(Si estás probando el paquete de forma local antes de publicarlo en Packagist, puedes agregarlo a tu `composer.json` como repositorio de tipo `"path"`)*:
-```json
-"repositories": [
-    {
-        "type": "path",
-        "url": "../Nyxo_Universal_Printer/composer_build"
-    }
-]
-```
-
-### 2. Ejecutar el Asistente de Instalación
+### 2. Run the Interactive Installer
 
 ```bash
 php artisan nyxo-printer:install
 ```
 
-Este comando publicará automáticamente:
-* `config/nyxo-printer.php` (Configuración de rutas, tablas y timeouts).
-* Migraciones de base de datos (`printer_nodes` y `print_jobs`).
-* Vistas Blade / Livewire.
-* El instalador de Windows `.exe` en `public/downloads/`.
-* Y te consultará si deseas ejecutar `php artisan migrate` de inmediato.
+This publishes:
+* `config/nyxo-printer.php` (Custom route prefix, table names, timeouts, default paper width).
+* Database migrations (`printer_nodes` and `print_jobs`).
+* Livewire / Blade components.
+
+### 3. Run Migrations
+
+```bash
+php artisan migrate
+```
 
 ---
 
-## 💻 Guía de Uso Rápido
+## 💻 Quickstart Guide
 
-### A) Impresión Térmica ESC/POS (Diseño Fluido)
+### 1. Create a Printer Node
+
+A **Printer Node** represents a physical workstation or cashier terminal:
+
+```php
+use Nyxo\Printer\Models\PrinterNode;
+
+$node = PrinterNode::create([
+    'name' => 'Main Cashier Register',
+    'driver' => 'thermal_80mm', // 'thermal_80mm' | 'thermal_58mm' | 'a4'
+    'status' => 'online',
+    'is_active' => true,
+]);
+
+// Get the 1-click pairing string to link the desktop agent instantly
+$pairingCode = $node->codigo_enlace; 
+```
+
+---
+
+## 🧾 Code Examples
+
+### A) Fluent Thermal Receipt (ESC/POS)
+
+Design clean, professional receipts with a fluent, chainable API. All Spanish and Latin characters (`ñ`, accents, `$`) are automatically converted to `CP850` / `WPC1252`:
 
 ```php
 use Nyxo\Printer\Facades\NyxoPrinter;
 
 NyxoPrinter::to($nodeId)
-    ->width(80) // 80mm o 58mm
-    ->title('MI COMERCIO', doubleWidth: true, doubleHeight: true)
-    ->text('Fecha: 17/08/2026 - Año de Garantía') // Acentos automáticos
+    ->width(80) // 80mm or 58mm
+    ->title('NYXO BISTRO & COFFEE', doubleWidth: true, doubleHeight: true)
+    ->center('Tax ID: 30-71829384-9')
+    ->text('Date: ' . now()->format('d/m/Y H:i') . ' - Order #1042')
     ->line()
     ->table([
-        ['nombre' => 'Cambio de Módulo OLED', 'precio' => 45000],
-        ['nombre' => 'Templado 9D', 'precio' => 5000],
+        ['nombre' => 'Double Espresso', 'cantidad' => 2, 'precio' => 7000],
+        ['nombre' => 'Toasted Ham & Cheese', 'cantidad' => 1, 'precio' => 4500],
+        ['nombre' => 'Artisan Croissant', 'cantidad' => 3, 'precio' => 6000],
     ])
-    ->total(50000)
-    ->qr('https://mi-factura.afip.gob.ar/123') // QR de Facturación o Pago
-    ->barcode('00045892')
-    ->openDrawer() // Pulso a cajón de dinero (opcional)
-    ->cut()
+    ->line()
+    ->total(17500, label: 'TOTAL DUE:')
+    ->feed(1)
+    ->qr('https://nyxo.app/verify/1042', size: 6) // Fiscal / Payment QR
+    ->barcode('00010429', type: 'CODE39')
+    ->center('Thank you for your visit!')
+    ->openDrawer() // Send electrical pulse to RJ11 cash drawer
+    ->cut()        // Automatic guillotine cut
     ->send();
 ```
 
 ---
 
-### B) Impresión de Documentos PDF en A4
+### B) Silent A4 PDF Printing
+
+Print customer invoices, warranty certificates, or packing slips directly to standard office printers:
 
 ```php
 use Nyxo\Printer\Facades\NyxoPrinter;
 
-// 1. Desde Base64 (DomPDF, Spatie PDF, Snappy)
+// 1. From an existing file on disk:
 NyxoPrinter::to($nodeId)
     ->copies(2)
-    ->pdf($pdfBase64)
+    ->pdfFile(storage_path('app/invoices/inv_4059.pdf'))
     ->send();
 
-// 2. Desde un archivo en disco
+// 2. From Base64 string (DomPDF, Snappy, Spatie Browsershot, etc.):
+$pdfBase64 = base64_encode($dompdf->output());
+
 NyxoPrinter::to($nodeId)
-    ->pdfFile(storage_path('app/ordenes/orden_458.pdf'))
+    ->pdf($pdfBase64)
     ->send();
 ```
 
 ---
 
-### C) Uso de Plantillas Reutilizables (Presets)
+### C) In-Browser Preview (Develop Without Paper!)
+
+Test your layout and formatting directly in the browser without printing on physical rolls:
 
 ```php
 use Nyxo\Printer\Facades\NyxoPrinter;
-use Nyxo\Printer\Templates\ReceiptTemplate;
 
-NyxoPrinter::to($nodeId)
-    ->template(new ReceiptTemplate([
-        'empresa' => 'eRepair Taller',
-        'title' => 'COMPROBANTE DE PAGO',
-        'items' => [
-            ['nombre' => 'Servicio Técnico Especializado', 'precio' => 25000],
-        ],
-        'total' => 25000,
-        'qr' => 'https://...',
-        'footer' => '¡Gracias por su confianza!',
-    ]))
-    ->send();
+Route::get('/preview-ticket', function () {
+    return NyxoPrinter::preview(function ($ticket) {
+        $ticket->width(80)
+               ->title('DEVELOPMENT PREVIEW')
+               ->text('Adjusting layout on screen!')
+               ->table([
+                   ['nombre' => 'Test Item 1', 'precio' => 1200],
+                   ['nombre' => 'Test Item 2', 'precio' => 3400],
+               ])
+               ->total(4600)
+               ->qr('https://printer.nyxo.app')
+               ->cut();
+    }, width: 80);
+});
 ```
 
-#### Creación de Plantillas Propias
-Cualquier clase puede convertirse en plantilla implementando `PrintTemplateInterface`:
+*Renders an interactive, photorealistic thermal paper preview directly in your browser with monospace typography, dividers, and QR codes.*
+
+---
+
+### D) Reusable Print Templates
+
+Organize your business logic using clean, testable template classes:
 
 ```php
 use Nyxo\Printer\Contracts\PrintTemplateInterface;
 use Nyxo\Printer\Builders\ThermalBuilder;
 
-class ComandaCocinaTemplate implements PrintTemplateInterface
+class KitchenOrderTemplate implements PrintTemplateInterface
 {
-    public function __construct(protected array $pedido) {}
+    public function __construct(protected array $order) {}
 
     public function build(ThermalBuilder $ticket): void
     {
-        $ticket->center('MESA #'.$this->pedido['mesa'], bold: true, doubleHeight: true)
-               ->text('Mozo: '.$this->pedido['mozo'])
+        $ticket->center('*** KITCHEN TICKET ***', bold: true, doubleHeight: true)
+               ->text('TABLE #' . $this->order['table'] . ' | Waiter: ' . $this->order['waiter'])
                ->doubleLine()
-               ->table($this->pedido['items'])
-               ->beep(times: 2) // Alarma sonora en cocina
+               ->table($this->order['dishes'])
+               ->feed(1)
+               ->beep(times: 2) // Sound acoustic buzzer in kitchen!
                ->cut();
     }
 }
+
+// Dispatch anywhere:
+NyxoPrinter::to($kitchenNodeId)
+    ->template(new KitchenOrderTemplate($orderData))
+    ->send();
 ```
 
 ---
 
-### D) Previsualización en Pantalla (Modo Emulador)
+## 🎨 Livewire Integration
 
-Para probar diseños y estilos sin imprimir en papel real ni tener una comandera conectada:
+Nyxo Universal Printer includes a ready-to-use **Livewire 3 & 4 Modal Component** styled with Tailwind CSS, supporting node selection, format switching, and real-time online status indicators.
 
-```php
-$htmlTicket = NyxoPrinter::preview(function ($ticket) {
-    $ticket->title('PRUEBA EN PANTALLA')
-           ->text('Diseñando ticket sin gastar rollos')
-           ->total(1500)
-           ->cut();
-}, width: 80);
+### 1. Include the modal in your layout:
 
-// Devuelve un bloque HTML/CSS simulando el papel continuo y tipografía térmica.
-```
-
----
-
-### E) Componente Livewire Frontend
-
-Incluye el modal en tu layout principal (`resources/views/layouts/app.blade.php`):
 ```blade
+{{-- resources/views/layouts/app.blade.php --}}
 <livewire:nyxo-printer-modal />
 ```
 
-Abre el modal desde cualquier botón o pantalla mediante eventos de Livewire/Alpine:
+### 2. Trigger from any button or Alpine component:
+
 ```blade
-<button wire:click="$dispatch('open-print-modal', { documentId: {{ $orden->id }}, documentType: 'orden', format: 'ticket_80mm' })">
-    Imprimir Ticket
+<button wire:click="$dispatch('open-print-modal', {
+    documentId: {{ $order->id }},
+    documentType: 'order',
+    format: 'ticket_80mm'
+})">
+    🖨️ Print Receipt
 </button>
 ```
 
 ---
 
-## 📡 Protocolo y Vinculación del Agente de Escritorio
+## 🛡️ Concurrency & High-Volume Resiliency
 
-El paquete expone automáticamente los siguientes endpoints bajo el prefijo configurado (`/api/v1/print`):
-
-| Método | Endpoint | Descripción |
-| :--- | :--- | :--- |
-| `GET` | `/ping` | Heartbeat para reportar estado activo y obtener datos del nodo. |
-| `GET` | `/jobs` | Obtiene trabajos pendientes con bloqueo atómico (`lockForUpdate`). |
-| `POST` | `/jobs/{id}/status` | Actualiza estado a `printed` o `failed` y dispara eventos. |
-| `GET` | `/downloads/Nyxo_Universal_Printer_Setup_Win.exe` | Descarga del instalador de Windows. |
-
-### 🔗 Código de Enlace Rápido (1 Clic)
-Para vincular el agente de escritorio sin escribir la URL y el Token a mano, puedes obtener el código unificado:
-```php
-$codigoEnlace = NyxoPrinter::getPairingCode($nodo); // Devuelve: Base64(url|token)
-```
-
----
-
-## 🧹 Mantenimiento de Base de Datos
-
-Para purgar trabajos completados o fallidos antiguos y mantener la base de datos optimizada:
+* **Atomic Database Locks:** Work retrieval uses `lockForUpdate()` within atomic database transactions, preventing duplicate prints even under high concurrency.
+* **Orphan Job Rescue:** If a client POS workstation experiences a power outage or crash while printing, Nyxo automatically re-queues the job after `config('nyxo-printer.timeout_minutes')`.
+* **Automatic Pruning:** Keep your database lean and performant with the built-in pruner:
 
 ```bash
 php artisan nyxo-printer:clean --days=7
 ```
 
-Puedes programarlo en tu `routes/console.php`:
+Add to your `routes/console.php`:
 ```php
 use Illuminate\Support\Facades\Schedule;
 
@@ -214,16 +305,48 @@ Schedule::command('nyxo-printer:clean --days=7')->daily();
 
 ---
 
-## 🛡️ Eventos del Ciclo de Vida
+## 📡 Lifecycle Events
 
-El paquete dispara eventos nativos de Laravel para que tu aplicación pueda reaccionar:
+Hook into your application workflows by listening to native Laravel events:
 
-* `Nyxo\Printer\Events\PrintJobCreated`: Al encolar un trabajo.
-* `Nyxo\Printer\Events\PrintJobPrinted`: Cuando el hardware físico termina de imprimir con éxito.
-* `Nyxo\Printer\Events\PrintJobFailed`: Si ocurre algún error en la impresora.
+| Event | Dispatched When |
+| :--- | :--- |
+| `Nyxo\Printer\Events\PrintJobCreated` | A job is successfully added to the print queue. |
+| `Nyxo\Printer\Events\PrintJobPrinted` | The physical desktop agent confirms the paper has been printed. |
+| `Nyxo\Printer\Events\PrintJobFailed` | Hardware failure, paper jam, or timeout reported by the printer. |
 
 ---
 
-## 📄 Licencia
+## ⚙️ Configuration Reference
 
-Este paquete está licenciado bajo la licencia [MIT](LICENSE.md).
+```php
+// config/nyxo-printer.php
+return [
+    'route_prefix' => env('NYXO_PRINTER_PREFIX', 'api/v1/print'),
+    'tables' => [
+        'nodes' => 'printer_nodes',
+        'jobs' => 'print_jobs',
+    ],
+    'tenant_column' => env('NYXO_PRINTER_TENANT_COLUMN', 'empresa_id'),
+    'timeout_minutes' => (int) env('NYXO_PRINTER_TIMEOUT_MINUTES', 3),
+    'max_attempts' => (int) env('NYXO_PRINTER_MAX_ATTEMPTS', 3),
+    'prune_after_days' => (int) env('NYXO_PRINTER_PRUNE_DAYS', 7),
+    'default_width' => 80, // 80mm or 58mm
+    'codepage' => 'CP850', // UTF-8 to CP850 transliteration
+];
+```
+
+---
+
+## 🤝 Community & Commercial Support
+
+* **Issues & Bugs:** [GitHub Issues](https://github.com/nyxo-app/nyxo-printer/issues)
+* **Desktop Agent & Commercial Licenses:** [printer.nyxo.app](https://printer.nyxo.app)
+* **Lead Magnet:** Claim your 1-seat free developer key with zero credit card at [printer.nyxo.app](https://printer.nyxo.app).
+
+---
+
+## 📄 License
+
+The Nyxo Universal Printer Laravel Package is open-sourced software licensed under the [MIT License](LICENSE.md).  
+The Nyxo Universal Printer Desktop Agent is proprietary commercial software licensed via [Lemon Squeezy](https://printer.nyxo.app).

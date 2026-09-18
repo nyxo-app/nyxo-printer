@@ -71,7 +71,7 @@ class InstallNyxoPrinterCommand extends Command
                 $this->line('   <fg=blue>ℹ</> El instalador ya existe en public/downloads (usa --force para sobrescribir).');
             }
         } else {
-            $this->line('   <fg=blue>ℹ</> El instalador de escritorio se descarga desde: <fg=yellow>https://github.com/nyxo-app/nyxo-printer/releases/latest</>');
+            $this->line('   <fg=blue>ℹ</> El instalador de escritorio se descarga desde la web oficial: <fg=yellow>https://printer.nyxo.app</>');
         }
 
         // 5. Preguntar si desea migrar ahora
