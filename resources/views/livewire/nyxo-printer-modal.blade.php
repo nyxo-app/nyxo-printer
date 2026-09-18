@@ -3,7 +3,7 @@
         <div class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
             <div class="relative w-full max-w-xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden transform transition-all">
                 
-                <!-- Encabezado Modal -->
+                <!-- Modal Header -->
                 <div class="px-6 py-4 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <div class="p-2.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-xl">
@@ -12,8 +12,8 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold text-slate-800 dark:text-white">Imprimir Documento</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Nyxo Universal Printer • Destino y formato</p>
+                            <h3 class="text-lg font-bold text-slate-800 dark:text-white">{{ __('Print Document') }}</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Nyxo Universal Printer • {{ __('Destination & format') }}</p>
                         </div>
                     </div>
                     <button wire:click="closeModal" class="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
@@ -23,10 +23,10 @@
                     </button>
                 </div>
 
-                <!-- Cuerpo Modal -->
+                <!-- Modal Body -->
                 <div class="p-6 space-y-5">
 
-                    <!-- Mensajes de Feedback -->
+                    <!-- Feedback Messages -->
                     @if($feedbackMessage)
                         <div class="p-3.5 rounded-xl text-sm font-medium flex items-center gap-3 {{ $feedbackType === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800' : 'bg-rose-50 text-rose-800 border border-rose-200 dark:bg-rose-900/30 dark:text-rose-300 dark:border-rose-800' }}">
                             @if($feedbackType === 'success')
@@ -42,9 +42,9 @@
                         </div>
                     @endif
 
-                    <!-- Selector de Formato -->
+                    <!-- Format Selector -->
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Formato de Salida</label>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">{{ __('Output Format') }}</label>
                         <div class="grid grid-cols-2 gap-3">
                             <button type="button" wire:click="setFormat('a4')" class="p-3.5 rounded-xl border text-left flex items-start gap-3 transition-all {{ $format === 'a4' ? 'border-indigo-600 bg-indigo-50/50 dark:bg-indigo-900/20 text-indigo-900 dark:text-indigo-200 ring-2 ring-indigo-500/20' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-slate-300' }}">
                                 <div class="p-2 rounded-lg bg-white dark:bg-slate-700 shadow-sm border border-slate-200/60 dark:border-slate-600">
@@ -53,8 +53,8 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <div class="font-bold text-sm">Hoja Estándar A4</div>
-                                    <div class="text-[11px] text-slate-500 dark:text-slate-400">PDF convencional / Láser</div>
+                                    <div class="font-bold text-sm">{{ __('Standard A4 Page') }}</div>
+                                    <div class="text-[11px] text-slate-500 dark:text-slate-400">{{ __('Conventional PDF / Office') }}</div>
                                 </div>
                             </button>
 
@@ -65,16 +65,16 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <div class="font-bold text-sm">Ticket Térmico (80mm)</div>
-                                    <div class="text-[11px] text-slate-500 dark:text-slate-400">ESC/POS Comandera</div>
+                                    <div class="font-bold text-sm">{{ __('Thermal Receipt (80mm)') }}</div>
+                                    <div class="text-[11px] text-slate-500 dark:text-slate-400">{{ __('ESC/POS POS Printer') }}</div>
                                 </div>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Selector de Nodo / Puesto Físico -->
+                    <!-- Target Printer Node Selector -->
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Puesto de Impresión Destino</label>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">{{ __('Target Printer Station') }}</label>
                         <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
                             @forelse($printerNodes as $node)
                                 <div wire:click="setPrinterNode({{ $node->id }})" class="p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all {{ $printerNodeId === $node->id ? 'border-indigo-600 bg-indigo-50/40 dark:bg-indigo-900/20 ring-1 ring-indigo-500' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600' }}">
@@ -84,9 +84,9 @@
                                             <div class="font-bold text-sm text-slate-800 dark:text-white">{{ $node->name }}</div>
                                             <div class="text-[10px] text-slate-400">
                                                 @if($node->is_online)
-                                                    <span class="text-emerald-600 dark:text-emerald-400 font-medium">En línea</span> • Conectado recientemente
+                                                    <span class="text-emerald-600 dark:text-emerald-400 font-medium">{{ __('Online') }}</span> • {{ __('Connected recently') }}
                                                 @else
-                                                    <span class="text-slate-400">Sin conexión activa</span>
+                                                    <span class="text-slate-400">{{ __('Offline / No active connection') }}</span>
                                                 @endif
                                             </div>
                                         </div>
@@ -95,7 +95,7 @@
                                 </div>
                             @empty
                                 <div class="p-4 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 text-center text-slate-500 text-xs">
-                                    No hay puestos de impresión registrados. Registra un nodo en la base de datos o en configuración.
+                                    {{ __('No printer stations found. Please register a node in database or settings.') }}
                                 </div>
                             @endforelse
                         </div>
@@ -103,10 +103,10 @@
 
                 </div>
 
-                <!-- Pie de Modal / Botones de Acción -->
+                <!-- Modal Footer -->
                 <div class="px-6 py-4 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
                     <button type="button" wire:click="closeModal" class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white">
-                        Cerrar
+                        {{ __('Close') }}
                     </button>
 
                     <button type="button" wire:click="sendToPrinter" wire:loading.attr="disabled" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-semibold rounded-xl shadow-lg shadow-indigo-600/20 disabled:opacity-50 inline-flex items-center gap-2 transition-all">
@@ -116,7 +116,7 @@
                             </svg>
                         </span>
                         <span wire:loading wire:target="sendToPrinter" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                        <span>Enviar a Impresión</span>
+                        <span>{{ __('Send to Printer') }}</span>
                     </button>
                 </div>
 

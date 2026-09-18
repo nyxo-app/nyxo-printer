@@ -18,7 +18,7 @@ class NyxoPrinterManager
     ) {}
 
     /**
-     * Inicia la construcción fluida de un trabajo para el nodo indicado.
+     * Start a fluent job builder for the specified printer node.
      */
     public function to(int $nodeId): PrintJobBuilder
     {
@@ -26,7 +26,7 @@ class NyxoPrinterManager
     }
 
     /**
-     * Encola directamente un documento PDF en Base64.
+     * Directly enqueue a Base64-encoded PDF document.
      */
     public function pdf(int $nodeId, string $pdfBase64, string $format = 'a4', int $copies = 1): PrintJob
     {
@@ -34,7 +34,7 @@ class NyxoPrinterManager
     }
 
     /**
-     * Encola directamente un payload binario ESC/POS en Base64.
+     * Directly enqueue a Base64-encoded ESC/POS binary payload.
      */
     public function thermal(int $nodeId, string $escposBase64, string $format = 'ticket_80mm', int $copies = 1): PrintJob
     {
@@ -42,7 +42,7 @@ class NyxoPrinterManager
     }
 
     /**
-     * Encola directamente texto plano ASCII.
+     * Directly enqueue raw ASCII text.
      */
     public function raw(int $nodeId, string $rawText, string $format = 'raw', int $copies = 1): PrintJob
     {
@@ -50,7 +50,7 @@ class NyxoPrinterManager
     }
 
     /**
-     * Encola un trabajo aplicando directamente una plantilla.
+     * Enqueue a print job applying a reusable template instance.
      */
     public function template(int $nodeId, PrintTemplateInterface $template, int $copies = 1): PrintJob
     {
@@ -58,7 +58,7 @@ class NyxoPrinterManager
     }
 
     /**
-     * Genera una previsualización HTML en tiempo real sin enviar a imprimir.
+     * Generate an in-browser photorealistic HTML thermal preview without dispatching to hardware.
      *
      * @param PrintTemplateInterface|callable(ThermalBuilder): void $builderOrTemplate
      */
@@ -76,7 +76,7 @@ class NyxoPrinterManager
     }
 
     /**
-     * Obtiene la instancia de un nodo de impresión por su ID.
+     * Find a printer node by its primary key.
      */
     public function node(int $nodeId): ?PrinterNode
     {
@@ -84,15 +84,23 @@ class NyxoPrinterManager
     }
 
     /**
-     * Devuelve el Código de Enlace Rápido en formato Base64 ("url|token").
+     * Returns the 1-click Base64 pairing string ("url|token") for the desktop agent.
      */
-    public function getPairingCode(PrinterNode $node): string
+    public function getPairingString(PrinterNode $node): string
     {
-        return $node->codigo_enlace;
+        return $node->pairing_string;
     }
 
     /**
-     * Obtiene el servicio de bajo nivel de encolado.
+     * Backward-compatible alias for getPairingString.
+     */
+    public function getPairingCode(PrinterNode $node): string
+    {
+        return $this->getPairingString($node);
+    }
+
+    /**
+     * Retrieve the underlying print service instance.
      */
     public function getPrintService(): PrintServiceInterface
     {

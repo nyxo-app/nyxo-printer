@@ -9,8 +9,8 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Middleware para compatibilidad con versiones previas.
- * Se recomienda utilizar directamente CheckPrintToken.
+ * Backward compatibility middleware alias.
+ * Using CheckPrintToken directly is recommended.
  */
 class EnsureTenantByPrintToken
 {

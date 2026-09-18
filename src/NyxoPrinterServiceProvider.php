@@ -16,27 +16,27 @@ use Nyxo\Printer\Services\PrintService;
 class NyxoPrinterServiceProvider extends ServiceProvider
 {
     /**
-     * Registra los servicios y bindings del contenedor.
+     * Register package services and container bindings.
      */
     public function register(): void
     {
-        // 1. Fusionar configuración por defecto
+        // 1. Merge default configuration
         $this->mergeConfigFrom(
             __DIR__.'/../config/nyxo-printer.php',
             'nyxo-printer'
         );
 
-        // 2. Vincular interfaz de encolado con su implementación
+        // 2. Bind printing service interface to implementation
         $this->app->bind(PrintServiceInterface::class, PrintService::class);
 
-        // 3. Registrar el Manager singleton detrás de la Facade NyxoPrinter
+        // 3. Register NyxoPrinter singleton behind Facade
         $this->app->singleton('nyxo-printer', function ($app) {
             return new NyxoPrinterManager($app->make(PrintServiceInterface::class));
         });
     }
 
     /**
-     * Inicializa los servicios, rutas, vistas y componentes del paquete.
+     * Bootstrap package services, routes, views, and components.
      */
     public function boot(): void
     {
@@ -62,28 +62,28 @@ class NyxoPrinterServiceProvider extends ServiceProvider
         $prefix = (string) config('nyxo-printer.route_prefix', 'api/v1/print');
         $middleware = (array) config('nyxo-printer.middleware', ['api']);
 
-        // Rutas API de Polling y Heartbeat del Agente
+        // Desktop Agent Polling and Heartbeat REST API
         Route::prefix($prefix)
             ->middleware($middleware)
             ->group(__DIR__.'/../routes/api.php');
 
-        // Ruta de descarga del instalador de Windows (.exe)
+        // Windows Desktop Agent download route
         Route::middleware(['web'])
             ->group(__DIR__.'/../routes/web.php');
     }
 
     protected function registerResources(): void
     {
-        // Carga de vistas con el namespace 'nyxo-printer'
+        // Load Blade views under 'nyxo-printer' namespace
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'nyxo-printer');
 
-        // Carga automática de migraciones si no se han publicado
+        // Automatically load database migrations
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 
     protected function registerLivewireComponents(): void
     {
-        // Si Livewire está instalado en la aplicación, registramos el componente del modal
+        // If Livewire is present in the host application, register the modal component
         if (class_exists(Livewire::class)) {
             Livewire::component('nyxo-printer-modal', NyxoPrinterModal::class);
         }
@@ -92,22 +92,22 @@ class NyxoPrinterServiceProvider extends ServiceProvider
     protected function registerPublishing(): void
     {
         if ($this->app->runningInConsole()) {
-            // Publicar Configuración
+            // Publish Configuration
             $this->publishes([
                 __DIR__.'/../config/nyxo-printer.php' => config_path('nyxo-printer.php'),
             ], 'nyxo-printer-config');
 
-            // Publicar Migraciones
+            // Publish Migrations
             $this->publishes([
                 __DIR__.'/../database/migrations/create_nyxo_printer_tables.php.stub' => database_path('migrations/'.date('Y_m_d_His').'_create_nyxo_printer_tables.php'),
             ], 'nyxo-printer-migrations');
 
-            // Publicar Vistas Blade
+            // Publish Blade Views
             $this->publishes([
                 __DIR__.'/../resources/views' => resource_path('views/vendor/nyxo-printer'),
             ], 'nyxo-printer-views');
 
-            // Publicar Instalador .exe
+            // Publish Desktop Installer Asset
             $this->publishes([
                 __DIR__.'/../resources/dist/Nyxo_Universal_Printer_Setup_Win.exe' => public_path('downloads/Nyxo_Universal_Printer_Setup_Win.exe'),
             ], 'nyxo-printer-assets');

@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 /**
- * Representa un puesto físico o computadora con el Agente de Impresión Nyxo instalado.
+ * Represents a physical workstation or POS computer running the Nyxo Desktop Agent.
  *
  * @property int $id
  * @property string $name
@@ -23,6 +23,7 @@ use Illuminate\Support\Str;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read bool $is_online
+ * @property-read string $pairing_string
  * @property-read string $codigo_enlace
  */
 class PrinterNode extends Model
@@ -44,7 +45,7 @@ class PrinterNode extends Model
     ];
 
     /**
-     * Define los casts de atributos.
+     * Define attribute casts.
      */
     protected function casts(): array
     {
@@ -58,7 +59,7 @@ class PrinterNode extends Model
     }
 
     /**
-     * Relación con los trabajos de impresión encolados para este nodo.
+     * Relationship with print jobs queued for this node.
      */
     public function printJobs(): HasMany
     {
@@ -66,7 +67,7 @@ class PrinterNode extends Model
     }
 
     /**
-     * Determina si el nodo ha reportado actividad reciente (últimos 2 minutos).
+     * Determines whether the printer node has reported activity in the last 2 minutes.
      */
     public function getIsOnlineAttribute(): bool
     {
@@ -78,9 +79,9 @@ class PrinterNode extends Model
     }
 
     /**
-     * Genera el Código de Enlace Rápido en formato Base64 ("url|token") para vincular el Agente Nyxo en 1 clic.
+     * Generates the 1-click Base64 pairing string ("url|token") for the Nyxo Desktop Agent.
      */
-    public function getCodigoEnlaceAttribute(): string
+    public function getPairingStringAttribute(): string
     {
         $prefix = (string) config('nyxo-printer.route_prefix', 'api/v1/print');
         $endpoint = url(trim($prefix, '/'));
@@ -89,7 +90,15 @@ class PrinterNode extends Model
     }
 
     /**
-     * Scope para filtrar únicamente nodos activos.
+     * Backward-compatible alias for pairing_string.
+     */
+    public function getCodigoEnlaceAttribute(): string
+    {
+        return $this->getPairingStringAttribute();
+    }
+
+    /**
+     * Scope to filter active nodes only.
      */
     public function scopeActive(Builder $query): Builder
     {
@@ -97,7 +106,7 @@ class PrinterNode extends Model
     }
 
     /**
-     * Genera un token aleatorio seguro de 60 caracteres.
+     * Generate a cryptographically secure 60-character random token.
      */
     public static function generateToken(): string
     {
@@ -105,7 +114,7 @@ class PrinterNode extends Model
     }
 
     /**
-     * Genera un código de emparejamiento numérico de 6 dígitos.
+     * Generate a 6-digit numeric pairing code.
      */
     public static function generatePairingCode(): string
     {

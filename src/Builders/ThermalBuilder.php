@@ -30,7 +30,7 @@ class ThermalBuilder
     }
 
     /**
-     * Define el ancho del papel térmico en milímetros (80 o 58).
+     * Set the thermal paper width in millimeters (80 or 58).
      */
     public function width(int $width): self
     {
@@ -40,7 +40,7 @@ class ThermalBuilder
     }
 
     /**
-     * Obtiene la cantidad de caracteres por línea según el ancho del papel.
+     * Get the number of characters per line based on paper width.
      */
     public function getColumns(): int
     {
@@ -48,7 +48,7 @@ class ThermalBuilder
     }
 
     /**
-     * Agrega un título destacado al ticket.
+     * Print a prominent receipt title.
      */
     public function title(
         string $text,
@@ -78,7 +78,7 @@ class ThermalBuilder
     }
 
     /**
-     * Imprime una línea de texto estándar.
+     * Print a standard line of text with optional styling.
      */
     public function text(
         string $text,
@@ -120,7 +120,7 @@ class ThermalBuilder
     }
 
     /**
-     * Imprime texto centrado con opciones de estilo.
+     * Print centered text.
      */
     public function center(string $text, bool $bold = false, bool $doubleHeight = false, bool $doubleWidth = false): self
     {
@@ -128,7 +128,7 @@ class ThermalBuilder
     }
 
     /**
-     * Imprime texto alineado a la derecha.
+     * Print right-aligned text.
      */
     public function right(string $text, bool $bold = false): self
     {
@@ -136,7 +136,7 @@ class ThermalBuilder
     }
 
     /**
-     * Imprime una línea horizontal divisoria ajustada al ancho del papel.
+     * Print a single horizontal divider line matching the paper width.
      */
     public function line(string $char = '-'): self
     {
@@ -155,7 +155,7 @@ class ThermalBuilder
     }
 
     /**
-     * Imprime una línea doble horizontal divisoria (ej: '======').
+     * Print a double horizontal divider line (e.g. '======').
      */
     public function doubleLine(string $char = '='): self
     {
@@ -163,11 +163,11 @@ class ThermalBuilder
     }
 
     /**
-     * Imprime una tabla alineada de artículos / servicios y precios.
+     * Print an aligned table of items/services and prices.
      *
-     * @param array<int, array{nombre: string, cantidad?: int|float, precio: float|int|string}> $items
+     * @param array<int, array{nombre?: string, name?: string, cantidad?: int|float, qty?: int|float, precio?: float|int|string, price?: float|int|string}> $items
      */
-    public function table(array $items, string $headerLeft = 'DESCRIPCION', string $headerRight = 'PRECIO'): self
+    public function table(array $items, string $headerLeft = 'DESCRIPTION', string $headerRight = 'PRICE'): self
     {
         $cols = $this->getColumns();
         $this->logEntries[] = ['type' => 'table', 'data' => $items];
@@ -176,19 +176,20 @@ class ThermalBuilder
             $printer->setJustification(Printer::JUSTIFY_LEFT);
             $printer->selectPrintMode(Printer::MODE_EMPHASIZED);
 
-            // Cabecera
+            // Table Header
             $leftLen = $cols - 12;
             $header = str_pad(mb_substr($headerLeft, 0, $leftLen), $leftLen).' '.str_pad($headerRight, 11, ' ', STR_PAD_LEFT);
             $printer->text($this->sanitizeText($header)."\n");
             $printer->selectPrintMode();
 
-            // Filas
+            // Table Rows
             foreach ($items as $item) {
-                $nombre = (string) ($item['nombre'] ?? 'Item');
-                $cant = isset($item['cantidad']) ? ' x'.(string) $item['cantidad'] : '';
+                $nombre = (string) ($item['name'] ?? $item['nombre'] ?? 'Item');
+                $cantVal = $item['qty'] ?? $item['cantidad'] ?? null;
+                $cant = $cantVal !== null ? ' x'.(string) $cantVal : '';
                 $desc = $nombre.$cant;
-                $precioNum = (float) ($item['precio'] ?? 0);
-                $precioFormatted = '$'.number_format($precioNum, 2, ',', '.');
+                $precioNum = (float) ($item['price'] ?? $item['precio'] ?? 0);
+                $precioFormatted = '$'.number_format($precioNum, 2, '.', ',');
 
                 $descCol = str_pad(mb_substr($desc, 0, $leftLen), $leftLen);
                 $priceCol = str_pad($precioFormatted, 11, ' ', STR_PAD_LEFT);
@@ -202,11 +203,11 @@ class ThermalBuilder
     }
 
     /**
-     * Imprime el monto total destacado a la derecha.
+     * Print a prominent right-aligned total amount.
      */
     public function total(float $amount, string $label = 'TOTAL:', string $currency = '$'): self
     {
-        $formatted = $currency.number_format($amount, 2, ',', '.');
+        $formatted = $currency.number_format($amount, 2, '.', ',');
         $this->logEntries[] = ['type' => 'total', 'data' => ['label' => $label, 'amount' => $formatted]];
 
         $this->operations[] = function (Printer $printer) use ($label, $formatted) {
@@ -220,7 +221,7 @@ class ThermalBuilder
     }
 
     /**
-     * Imprime un código de barras 1D (Code39, Code128, etc.).
+     * Print a 1D Barcode (Code39, Code128, etc.).
      */
     public function barcode(string $code, string $type = 'CODE39'): self
     {
@@ -233,7 +234,7 @@ class ThermalBuilder
                 $printer->barcode($padded, Printer::BARCODE_CODE39);
                 $printer->feed(1);
             } catch (\Throwable) {
-                // Si la impresora física no soporta el comando, continuar sin abortar
+                // If the hardware printer does not support the command, proceed safely
             }
         };
 
@@ -241,7 +242,7 @@ class ThermalBuilder
     }
 
     /**
-     * Imprime un código QR (con soporte de comando nativo o fallback gráfico).
+     * Print a 2D QR Code.
      */
     public function qr(string $content, int $size = 6, string $errorCorrection = 'M'): self
     {
@@ -253,7 +254,7 @@ class ThermalBuilder
                 $printer->qrCode($content, Printer::QR_ECLEVEL_M, max(1, min(16, $size)));
                 $printer->feed(1);
             } catch (\Throwable) {
-                // Continuar silenciosamente ante hardware muy antiguo
+                // Silently fallback on legacy hardware
             }
         };
 
@@ -261,7 +262,7 @@ class ThermalBuilder
     }
 
     /**
-     * Envía un pulso eléctrico para abrir el cajón portamonedas (RJ11/RJ12).
+     * Send an electrical kick pulse to open the cash drawer (RJ11/RJ12).
      */
     public function openDrawer(int $pin = 0): self
     {
@@ -275,7 +276,7 @@ class ThermalBuilder
     }
 
     /**
-     * Emite una señal sonora / alarma en la impresora (Buzzer de cocina/caja).
+     * Trigger an acoustic beep / buzzer signal on the printer (kitchen/cashier alert).
      */
     public function beep(int $times = 1): self
     {
@@ -283,7 +284,6 @@ class ThermalBuilder
 
         $this->operations[] = function (Printer $printer) use ($times) {
             for ($i = 0; $i < $times; $i++) {
-                // ESC B (Buzzer) o Bell
                 $printer->getPrintConnector()->write("\x1B\x42\x02\x02");
             }
         };
@@ -292,7 +292,7 @@ class ThermalBuilder
     }
 
     /**
-     * Avanza el papel la cantidad de líneas especificada.
+     * Feed the paper forward by the specified number of lines.
      */
     public function feed(int $lines = 1): self
     {
@@ -306,7 +306,7 @@ class ThermalBuilder
     }
 
     /**
-     * Corta el papel automáticamente.
+     * Perform an automatic paper cut.
      */
     public function cut(bool $full = false): self
     {
@@ -322,7 +322,7 @@ class ThermalBuilder
     }
 
     /**
-     * Permite ejecutar comandos personalizados crudos directamente sobre la instancia de Printer.
+     * Execute custom raw callbacks directly against the mike42/escpos Printer instance.
      *
      * @param callable(Printer): void $callback
      */
@@ -334,8 +334,8 @@ class ThermalBuilder
     }
 
     /**
-     * Compila todas las operaciones en comandos binarios ESC/POS y devuelve el resultado en Base64.
-     * Implementa la regla crítica de PHP 8.x para evitar errores de buffer nulo.
+     * Compile all queued operations into binary ESC/POS commands and return Base64 string.
+     * Implements PHP 8.x safe buffer extraction.
      */
     public function toBase64(): string
     {
@@ -348,8 +348,7 @@ class ThermalBuilder
             $op($printer);
         }
 
-        // ⚠️ REGLA CRÍTICA EN PHP 8.x:
-        // Obtener el buffer del conector ANTES de ejecutar $printer->close()
+        // CRITICAL PHP 8.x RULE: Get buffer data BEFORE calling $printer->close()
         $data = $connector->getData();
         $printer->close();
 
@@ -357,7 +356,7 @@ class ThermalBuilder
     }
 
     /**
-     * Genera una previsualización visual interactiva en HTML simulando el papel térmico continuo.
+     * Generate an interactive, photorealistic HTML thermal preview simulating continuous paper.
      */
     public function preview(): string
     {
@@ -386,7 +385,9 @@ class ThermalBuilder
                 case 'table':
                     $html .= '<div style="margin: 8px 0;">';
                     foreach ((array) $data as $row) {
-                        $html .= '<div style="display: flex; justify-content: space-between; gap: 8px;"><span>'.htmlspecialchars((string) ($row['nombre'] ?? 'Item')).'</span><span>$'.number_format((float) ($row['precio'] ?? 0), 2, ',', '.').'</span></div>';
+                        $nombre = $row['name'] ?? $row['nombre'] ?? 'Item';
+                        $precio = (float) ($row['price'] ?? $row['precio'] ?? 0);
+                        $html .= '<div style="display: flex; justify-content: space-between; gap: 8px;"><span>'.htmlspecialchars((string) $nombre).'</span><span>$'.number_format($precio, 2, '.', ',').'</span></div>';
                     }
                     $html .= '</div>';
                     break;
@@ -400,13 +401,13 @@ class ThermalBuilder
                     $html .= '<div style="text-align: center; margin: 12px 0; padding: 10px; background: #f8fafc; border: 1px dashed #cbd5e1; font-size: 10px; word-break: break-all;">[ QR CODE ]<br><span style="color:#64748b;">'.htmlspecialchars((string) $data).'</span></div>';
                     break;
                 case 'drawer':
-                    $html .= '<div style="text-align: center; font-size: 10px; color: #6366f1; margin: 4px 0;">[ ⚡ Pulso Apertura de Cajón ]</div>';
+                    $html .= '<div style="text-align: center; font-size: 10px; color: #6366f1; margin: 4px 0;">[ ⚡ Cash Drawer Kick ]</div>';
                     break;
                 case 'beep':
-                    $html .= '<div style="text-align: center; font-size: 10px; color: #eab308; margin: 4px 0;">[ 🔔 Alarma Sonora x'.$data.' ]</div>';
+                    $html .= '<div style="text-align: center; font-size: 10px; color: #eab308; margin: 4px 0;">[ 🔔 Acoustic Buzzer x'.$data.' ]</div>';
                     break;
                 case 'cut':
-                    $html .= '<div style="text-align: center; color: #94a3b8; margin-top: 14px; font-size: 10px; border-top: 1px dashed #cbd5e1; padding-top: 4px;">--- CORTE DE PAPEL ---</div>';
+                    $html .= '<div style="text-align: center; color: #94a3b8; margin-top: 14px; font-size: 10px; border-top: 1px dashed #cbd5e1; padding-top: 4px;">--- PAPER CUT ---</div>';
                     break;
                 case 'feed':
                     $html .= str_repeat('<br>', max(1, (int) $data));
@@ -435,7 +436,7 @@ class ThermalBuilder
     }
 
     /**
-     * Sanitiza caracteres en español convirtiendo UTF-8 a la codificación de la impresora.
+     * Transliterates UTF-8 characters to the printer target codepage (e.g. CP850 / WPC1252).
      */
     protected function sanitizeText(string $text): string
     {

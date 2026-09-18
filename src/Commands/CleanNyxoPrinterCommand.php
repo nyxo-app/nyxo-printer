@@ -14,14 +14,14 @@ class CleanNyxoPrinterCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'nyxo-printer:clean {--days= : Purgar trabajos más antiguos que X días (por defecto según config)}';
+    protected $signature = 'nyxo-printer:clean {--days= : Purge print jobs older than X days (default from config)}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Elimina trabajos de impresión antiguos completados o fallidos para optimizar la base de datos';
+    protected $description = 'Purge completed or failed print jobs to keep the database lean and performant';
 
     /**
      * Execute the console command.
@@ -31,13 +31,13 @@ class CleanNyxoPrinterCommand extends Command
         $days = (int) ($this->option('days') ?? config('nyxo-printer.prune_after_days', 7));
         $threshold = now()->subDays($days);
 
-        $this->info("🧹 Purgando trabajos de impresión completados o fallidos anteriores a: {$threshold->toDateTimeString()} ({$days} días)...");
+        $this->info("🧹 Purging completed or failed print jobs older than {$threshold->toDateTimeString()} ({$days} days)...");
 
         $count = PrintJob::whereIn('status', ['printed', 'failed'])
             ->where('created_at', '<=', $threshold)
             ->delete();
 
-        $this->info("✓ Se eliminaron {$count} trabajos de impresión antiguos.");
+        $this->info("✓ Successfully purged {$count} legacy print jobs.");
 
         return self::SUCCESS;
     }

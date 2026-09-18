@@ -13,7 +13,7 @@ use Nyxo\Printer\Models\PrintJob;
 class PrintService implements PrintServiceInterface
 {
     /**
-     * Encola un trabajo de impresión genérico en la base de datos.
+     * Enqueue a generic print job into the database.
      */
     public function enqueue(
         int $printerNodeId,
@@ -43,7 +43,7 @@ class PrintService implements PrintServiceInterface
     }
 
     /**
-     * Encola un documento PDF en Base64 para impresoras A4 o térmicas.
+     * Enqueue a Base64 PDF document for A4 or thermal printers.
      */
     public function enqueueA4(
         int $printerNodeId,
@@ -55,7 +55,7 @@ class PrintService implements PrintServiceInterface
     }
 
     /**
-     * Encola comandos binarios ESC/POS para impresoras térmicas.
+     * Enqueue binary ESC/POS commands for thermal receipt printers.
      */
     public function enqueueThermal(
         int $printerNodeId,
@@ -67,7 +67,7 @@ class PrintService implements PrintServiceInterface
     }
 
     /**
-     * Encola texto plano ASCII para impresoras matriciales o notas simples.
+     * Enqueue raw ASCII text for dot matrix or basic printers.
      */
     public function enqueueRaw(
         int $printerNodeId,
@@ -79,7 +79,7 @@ class PrintService implements PrintServiceInterface
     }
 
     /**
-     * Encola un payload JSON estructurado (formato legacy).
+     * Enqueue structured JSON data.
      */
     public function enqueueJson(
         int $printerNodeId,
@@ -97,7 +97,7 @@ class PrintService implements PrintServiceInterface
         $exists = PrinterNode::where('id', $printerNodeId)->exists();
 
         if (! $exists) {
-            throw new InvalidArgumentException("El nodo de impresión #{$printerNodeId} no existe.");
+            throw new InvalidArgumentException("Printer node #{$printerNodeId} does not exist.");
         }
     }
 }

@@ -17,7 +17,7 @@ class NyxoPrinterModal extends Component
 
     public ?int $documentId = null;
 
-    public string $documentType = 'orden'; // 'orden' | 'recibo' | 'factura' | 'comprobante'
+    public string $documentType = 'order'; // 'order' | 'receipt' | 'invoice' | 'voucher'
 
     public string $format = 'a4'; // 'a4' | 'ticket_80mm' | 'ticket_58mm'
 
@@ -34,7 +34,7 @@ class NyxoPrinterModal extends Component
     #[On('open-print-modal')]
     public function open(
         int $documentId,
-        string $documentType = 'orden',
+        string $documentType = 'order',
         ?string $format = null,
         ?int $printerNodeId = null,
         int $copies = 1
@@ -44,11 +44,11 @@ class NyxoPrinterModal extends Component
         $this->format = $format ?? 'a4';
         $this->copies = max(1, $copies);
 
-        // Preselección inteligente:
-        // 1. Parámetro explícito
-        // 2. Sesión reciente
-        // 3. Campo en el usuario autenticado
-        // 4. Primer nodo activo disponible
+        // Smart preselection:
+        // 1. Explicit parameter
+        // 2. Recent session
+        // 3. User assigned printer node
+        // 4. First active node available
         if ($printerNodeId && PrinterNode::where('id', $printerNodeId)->where('is_active', true)->exists()) {
             $this->printerNodeId = $printerNodeId;
         } elseif (session()->has('nyxo_last_printer_node_id') && PrinterNode::where('id', session('nyxo_last_printer_node_id'))->where('is_active', true)->exists()) {
@@ -89,7 +89,7 @@ class NyxoPrinterModal extends Component
     public function sendToPrinter(PrintServiceInterface $printService): void
     {
         if (! $this->documentId || ! $this->printerNodeId) {
-            $this->feedbackMessage = 'Debes seleccionar un puesto de impresión activo.';
+            $this->feedbackMessage = 'You must select an active printer node.';
             $this->feedbackType = 'error';
 
             return;
@@ -98,10 +98,9 @@ class NyxoPrinterModal extends Component
         $this->isSending = true;
 
         try {
-            // Se recuerda el nodo seleccionado
             session(['nyxo_last_printer_node_id' => $this->printerNodeId]);
 
-            // Se dispara el evento de dominio para que la app cliente procese y encole el payload
+            // Dispatch domain event for client application to build and enqueue the payload
             $this->dispatch('nyxo-print-requested', [
                 'documentId' => $this->documentId,
                 'documentType' => $this->documentType,
@@ -111,12 +110,12 @@ class NyxoPrinterModal extends Component
             ]);
 
             $node = PrinterNode::find($this->printerNodeId);
-            $nodeName = $node?->name ?? "Puesto #{$this->printerNodeId}";
+            $nodeName = $node?->name ?? "Node #{$this->printerNodeId}";
 
-            $this->feedbackMessage = "¡Documento enviado con éxito a la cola de impresión de '{$nodeName}'!";
+            $this->feedbackMessage = "Document successfully dispatched to the print queue of '{$nodeName}'!";
             $this->feedbackType = 'success';
         } catch (\Throwable $e) {
-            $this->feedbackMessage = 'Error al enviar a impresión: '.$e->getMessage();
+            $this->feedbackMessage = 'Error sending to printer: '.$e->getMessage();
             $this->feedbackType = 'error';
         } finally {
             $this->isSending = false;

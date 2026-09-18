@@ -8,16 +8,18 @@ use Nyxo\Printer\Builders\ThermalBuilder;
 use Nyxo\Printer\Contracts\PrintTemplateInterface;
 
 /**
- * Plantilla estándar de Recibo / Ticket de Venta para comanderas térmicas de 80mm o 58mm.
+ * Standard Sales Receipt / Ticket template for 80mm or 58mm thermal printers.
  */
 class ReceiptTemplate implements PrintTemplateInterface
 {
     /**
      * @param array{
+     *     company?: string,
      *     empresa?: string,
      *     title?: string,
+     *     metadata?: array<string, string>,
      *     datos?: array<string, string>,
-     *     items?: array<int, array{nombre: string, cantidad?: int|float, precio: float|int}>,
+     *     items?: array<int, array{name?: string, nombre?: string, qty?: int|float, cantidad?: int|float, price?: float|int, precio?: float|int}>,
      *     total: float|int,
      *     qr?: string,
      *     barcode?: string,
@@ -32,51 +34,52 @@ class ReceiptTemplate implements PrintTemplateInterface
 
     public function build(ThermalBuilder $ticket): void
     {
-        // 1. Encabezado / Empresa y Título
-        $empresa = $this->data['empresa'] ?? null;
-        $title = $this->data['title'] ?? 'RECIBO DE VENTA';
+        // 1. Company Header & Title
+        $company = $this->data['company'] ?? $this->data['empresa'] ?? null;
+        $title = $this->data['title'] ?? 'SALES RECEIPT';
 
-        if ($empresa) {
-            $ticket->title($empresa, doubleWidth: true, doubleHeight: true);
+        if ($company) {
+            $ticket->title($company, doubleWidth: true, doubleHeight: true);
         }
 
         $ticket->center($title, bold: true);
         $ticket->doubleLine('=');
 
-        // 2. Metadatos / Datos Clave-Valor
-        if (! empty($this->data['datos'])) {
-            foreach ($this->data['datos'] as $key => $val) {
+        // 2. Metadata / Key-Value Details
+        $metadata = $this->data['metadata'] ?? $this->data['datos'] ?? [];
+        if (! empty($metadata)) {
+            foreach ($metadata as $key => $val) {
                 $ticket->text("{$key}: {$val}");
             }
             $ticket->line('-');
         }
 
-        // 3. Tabla de Artículos
+        // 3. Item Table
         if (! empty($this->data['items'])) {
             $ticket->table($this->data['items']);
             $ticket->line('-');
         }
 
-        // 4. Monto Total
+        // 4. Total Amount
         $total = (float) ($this->data['total'] ?? 0);
         $ticket->total($total);
 
-        // 5. Código QR (ej. Facturación AFIP o Pago)
+        // 5. QR Code (e.g. Fiscal Verification or Payment Link)
         if (! empty($this->data['qr'])) {
             $ticket->qr($this->data['qr']);
         }
 
-        // 6. Código de Barras
+        // 6. Barcode
         if (! empty($this->data['barcode'])) {
             $ticket->barcode($this->data['barcode']);
         }
 
-        // 7. Pie de Página / Términos
+        // 7. Footer / Terms
         if (! empty($this->data['footer'])) {
             $ticket->center($this->data['footer']);
         }
 
-        // 8. Opciones de Hardware
+        // 8. Hardware Control
         if (! empty($this->data['open_drawer'])) {
             $ticket->openDrawer();
         }

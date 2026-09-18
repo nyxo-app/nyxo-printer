@@ -12,11 +12,11 @@ use Symfony\Component\HttpFoundation\Response;
 class CheckPrintToken
 {
     /**
-     * Valida el token del Agente de Impresión Local y vincula el nodo resuelto al request.
+     * Validate the local printing agent token and bind the resolved node to the request.
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // 1. Extraer el token de múltiples fuentes posibles (cabeceras estándar, Apache/FastCGI, query params)
+        // 1. Extract token from multiple possible sources (standard headers, query params, auth bearer)
         $token = $request->header('X-Tenant-Token')
             ?? $request->header('X-Print-Token')
             ?? $request->header('Print-Token')
@@ -39,11 +39,11 @@ class CheckPrintToken
         if (! $token) {
             return response()->json([
                 'success' => false,
-                'message' => 'Token de impresión no proporcionado.',
+                'message' => 'Print token not provided.',
             ], 401);
         }
 
-        // 2. Buscar directamente por token o auto-decodificar Código de Enlace Base64 (formato: "url|token")
+        // 2. Query directly by token or auto-decode Base64 pairing string (format: "url|token")
         $node = PrinterNode::where('print_token', $token)->first();
 
         if (! $node) {
@@ -60,15 +60,15 @@ class CheckPrintToken
         if (! $node || ! $node->is_active) {
             return response()->json([
                 'success' => false,
-                'message' => 'Token de impresión inválido o nodo inexistente / inactivo.',
+                'message' => 'Invalid print token or inactive printer node.',
             ], 401);
         }
 
-        // 3. Vincular el nodo resuelto al request para acceso directo en los controladores
+        // 3. Bind resolved node to request attributes for controller access
         $request->attributes->set('printerNode', $node);
         $request->attributes->set('printer_node_id', $node->id);
 
-        // 4. Actualizar la marca de tiempo de conexión activa sin disparar observadores pesados
+        // 4. Touch heartbeat timestamp quietly
         $node->updateQuietly(['last_ping_at' => now()]);
 
         return $next($request);

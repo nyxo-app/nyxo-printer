@@ -17,7 +17,7 @@ use Nyxo\Printer\Models\PrintJob;
 class PrintJobApiController extends Controller
 {
     /**
-     * Endpoint de comprobación de salud / heartbeat (GET /ping).
+     * Heartbeat / Health check endpoint for the desktop agent (GET /ping).
      */
     public function ping(Request $request): JsonResponse
     {
@@ -37,6 +37,7 @@ class PrintJobApiController extends Controller
                 'name' => $node->name,
                 'tenant_id' => $tenantId,
             ],
+            // Backward-compatible keys for legacy desktop agents
             'tenant' => [
                 'id' => $tenantId,
                 'nombre' => $node->name,
@@ -51,15 +52,15 @@ class PrintJobApiController extends Controller
     }
 
     /**
-     * Obtiene los trabajos pendientes para el nodo y los bloquea como 'processing' (GET /jobs).
-     * Incluye recuperación de trabajos huérfanos mediante scopeDeliverable().
+     * Retrieve pending jobs for the node and atomically lock them as 'processing' (GET /jobs).
+     * Includes automated orphan job rescue via scopeDeliverable().
      */
     public function index(Request $request): JsonResponse
     {
         /** @var PrinterNode $node */
         $node = $request->attributes->get('printerNode');
 
-        // Transacción atómica con lockForUpdate() para evitar duplicación ante peticiones simultáneas
+        // Atomic transaction with lockForUpdate() to prevent duplicates under concurrent requests
         $jobs = DB::transaction(function () use ($node) {
             $pendingJobs = PrintJob::deliverable($node->id)
                 ->lockForUpdate()
@@ -102,7 +103,7 @@ class PrintJobApiController extends Controller
     }
 
     /**
-     * Actualiza el estado del trabajo reportado por la utilidad local (POST /jobs/{id}/status).
+     * Update job status reported by the desktop agent (POST /jobs/{id}/status).
      */
     public function updateStatus(Request $request, int $id): JsonResponse
     {
@@ -116,7 +117,7 @@ class PrintJobApiController extends Controller
         if (! $job) {
             return response()->json([
                 'success' => false,
-                'message' => 'Trabajo no encontrado o no pertenece a este nodo de impresión.',
+                'message' => 'Print job not found or does not belong to this printer node.',
             ], 404);
         }
 
@@ -140,7 +141,7 @@ class PrintJobApiController extends Controller
             'error_message' => $errorMessage,
         ]);
 
-        // Disparamos eventos del ciclo de vida para que el resto de la aplicación reaccione
+        // Dispatch domain lifecycle events
         if ($newStatus === 'printed') {
             event(new PrintJobPrinted($job));
         } elseif ($newStatus === 'failed') {
@@ -149,7 +150,7 @@ class PrintJobApiController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Estado del trabajo actualizado correctamente.',
+            'message' => 'Print job status updated successfully.',
             'job_id' => $job->id,
             'new_status' => $job->status,
         ]);

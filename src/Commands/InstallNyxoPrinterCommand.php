@@ -14,14 +14,14 @@ class InstallNyxoPrinterCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'nyxo-printer:install {--force : Sobrescribir archivos existentes}';
+    protected $signature = 'nyxo-printer:install {--force : Overwrite existing files}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Instala y publica la configuración, migraciones y recursos de Nyxo Universal Printer';
+    protected $description = 'Install and publish Nyxo Universal Printer configuration, migrations, and assets';
 
     /**
      * Execute the console command.
@@ -32,29 +32,29 @@ class InstallNyxoPrinterCommand extends Command
 
         $force = (bool) $this->option('force');
 
-        // 1. Publicar Configuración
-        $this->info('📁 Publicando archivo de configuración [config/nyxo-printer.php]...');
+        // 1. Publish Configuration
+        $this->info('📁 Publishing configuration file [config/nyxo-printer.php]...');
         $this->call('vendor:publish', [
             '--tag' => 'nyxo-printer-config',
             '--force' => $force,
         ]);
 
-        // 2. Publicar Migraciones
-        $this->info('🗄️  Publicando migraciones de base de datos...');
+        // 2. Publish Migrations
+        $this->info('🗄️  Publishing database migrations...');
         $this->call('vendor:publish', [
             '--tag' => 'nyxo-printer-migrations',
             '--force' => $force,
         ]);
 
-        // 3. Publicar Vistas Blade
-        $this->info('🎨 Publicando vistas Livewire/Blade...');
+        // 3. Publish Blade Views & Livewire Component
+        $this->info('🎨 Publishing Livewire/Blade views...');
         $this->call('vendor:publish', [
             '--tag' => 'nyxo-printer-views',
             '--force' => $force,
         ]);
 
-        // 4. Publicar Instalador de Windows .exe en public/downloads
-        $this->info('📦 Publicando instalador de Windows [.exe] en public/downloads...');
+        // 4. Check Desktop Installer
+        $this->info('📦 Verifying Windows desktop agent setup...');
         $downloadsPath = public_path('downloads');
         if (! File::exists($downloadsPath)) {
             File::makeDirectory($downloadsPath, 0755, true);
@@ -66,29 +66,29 @@ class InstallNyxoPrinterCommand extends Command
         if (File::exists($sourceExe)) {
             if (! File::exists($destExe) || $force) {
                 File::copy($sourceExe, $destExe);
-                $this->line('   <fg=green>✓</> Instalador copiado a: <fg=yellow>public/downloads/Nyxo_Universal_Printer_Setup_Win.exe</>');
+                $this->line('   <fg=green>✓</> Desktop installer copied to: <fg=yellow>public/downloads/Nyxo_Universal_Printer_Setup_Win.exe</>');
             } else {
-                $this->line('   <fg=blue>ℹ</> El instalador ya existe en public/downloads (usa --force para sobrescribir).');
+                $this->line('   <fg=blue>ℹ</> Installer already exists in public/downloads (use --force to overwrite).');
             }
         } else {
-            $this->line('   <fg=blue>ℹ</> El instalador de escritorio se descarga desde la web oficial: <fg=yellow>https://printer.nyxo.app</>');
+            $this->line('   <fg=blue>ℹ</> Download the desktop agent installer from the official portal: <fg=yellow>https://printer.nyxo.app</>');
         }
 
-        // 5. Preguntar si desea migrar ahora
-        if ($this->confirm('¿Deseas ejecutar las migraciones de base de datos ahora?', true)) {
+        // 5. Ask to run migrations
+        if ($this->confirm('Would you like to run database migrations now?', true)) {
             $this->call('migrate');
         }
 
         $this->newLine();
-        $this->info('🎉 ¡Nyxo Universal Printer ha sido instalado con éxito!');
+        $this->info('🎉 Nyxo Universal Printer has been installed successfully!');
         $this->newLine();
-        $this->line('  <fg=bright-white;bg=blue;options=bold> GUÍA RÁPIDA DE USO </>');
-        $this->line('  1. Incluye el modal en tu layout Blade:');
+        $this->line('  <fg=bright-white;bg=blue;options=bold> QUICKSTART GUIDE </>');
+        $this->line('  1. Include the modal component in your Blade layout:');
         $this->line('     <fg=yellow><livewire:nyxo-printer-modal /></>');
         $this->newLine();
-        $this->line('  2. Envía impresiones directamente desde PHP:');
+        $this->line('  2. Dispatch print jobs directly from PHP:');
         $this->line('     <fg=yellow>NyxoPrinter::to($nodeId)->pdf($pdfBase64)->send();</>');
-        $this->line('     <fg=yellow>NyxoPrinter::to($nodeId)->title("TICKET")->total(45000)->cut()->send();</>');
+        $this->line('     <fg=yellow>NyxoPrinter::to($nodeId)->title("RECEIPT")->total(45.00)->cut()->send();</>');
         $this->newLine();
 
         return self::SUCCESS;

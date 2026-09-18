@@ -5,11 +5,12 @@ declare(strict_types=1);
 return [
     /*
     |--------------------------------------------------------------------------
-    | Prefijo y Middleware de Rutas API
+    | API Route Prefix & Middleware
     |--------------------------------------------------------------------------
     |
-    | Define la URI y los middlewares bajo los cuales responderá el Agente
-    | de impresión de escritorio de Nyxo (GET /ping, GET /jobs, POST /status).
+    | Defines the URL prefix and middleware stack for the printing endpoints
+    | used by the Nyxo Universal Printer desktop agent (GET /ping, GET /jobs,
+    | POST /jobs/{id}/status).
     |
     */
     'route_prefix' => env('NYXO_PRINTER_PREFIX', 'api/v1/print'),
@@ -18,22 +19,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Ruta de descarga del instalador de Windows (.exe)
+    | Windows Desktop Agent Download Route
     |--------------------------------------------------------------------------
     |
-    | Ruta pública desde la cual los usuarios pueden descargar el agente
-    | instalador preconfigurado para vincular sus PCs.
+    | Public route where client workstations can request the desktop agent
+    | setup file. If the file is not hosted locally, it redirects to the
+    | official download portal at https://printer.nyxo.app.
     |
     */
     'download_route' => 'downloads/Nyxo_Universal_Printer_Setup_Win.exe',
 
     /*
     |--------------------------------------------------------------------------
-    | Nombres de Tablas de Base de Datos
+    | Database Table Names
     |--------------------------------------------------------------------------
     |
-    | Permite personalizar los nombres de las tablas para evitar colisiones
-    | en bases de datos compartidas o heredadas.
+    | Customize the database table names to prevent naming collisions in
+    | shared, legacy, or multi-tenant database architectures.
     |
     */
     'tables' => [
@@ -43,26 +45,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Soporte Multi-Tenant / Multi-Empresa
+    | Multi-Tenant / Multi-Company Support
     |--------------------------------------------------------------------------
     |
-    | Si tu aplicación es un SaaS o multi-empresa, especifica el nombre de la
-    | columna de relación (ej. 'empresa_id' o 'tenant_id'). Si es un monolito
-    | de una sola empresa, puedes dejarlo en null.
+    | If your application is a SaaS or multi-tenant system, specify the foreign
+    | key column name (e.g. 'company_id', 'tenant_id', or 'empresa_id'). Set
+    | to null if your application is a single-tenant monolith.
     |
     */
     'tenant_column' => env('NYXO_PRINTER_TENANT_COLUMN', 'empresa_id'),
 
     /*
     |--------------------------------------------------------------------------
-    | Configuración de Resiliencia y Concurrencia
+    | Resilience & Concurrency Configuration
     |--------------------------------------------------------------------------
     |
-    | timeout_minutes: Tiempo máximo que un trabajo puede permanecer en estado
-    | 'processing' antes de que el sistema lo considere huérfano (por corte
-    | de luz o desconexión) y lo vuelva a entregar para su impresión.
+    | timeout_minutes: Maximum minutes a job may stay in 'processing' status
+    | before being treated as orphaned (due to power outage or crash) and
+    | automatically re-queued for delivery.
     |
-    | max_attempts: Cantidad máxima de reintentos antes de marcar como fallido.
+    | max_attempts: Maximum retry attempts before marking the job as failed.
     |
     */
     'timeout_minutes' => (int) env('NYXO_PRINTER_TIMEOUT_MINUTES', 3),
@@ -71,22 +73,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Mantenimiento y Purga Automática de la Cola (Prunable)
+    | Automated Database Pruning
     |--------------------------------------------------------------------------
     |
-    | Días de retención para trabajos finalizados ('printed' o 'failed')
-    | antes de ser eliminados por el comando 'php artisan nyxo-printer:clean'.
+    | Number of retention days for completed ('printed') or failed jobs
+    | before being automatically purged by `php artisan nyxo-printer:clean`.
     |
     */
     'prune_after_days' => (int) env('NYXO_PRINTER_PRUNE_DAYS', 7),
 
     /*
     |--------------------------------------------------------------------------
-    | Configuración Térmica por Defecto (ESC/POS)
+    | Default Thermal Printing Settings (ESC/POS)
     |--------------------------------------------------------------------------
     |
-    | default_width: Ancho en mm del papel térmico por defecto (80 o 58).
-    | codepage: Tabla de códigos para caracteres en español (CP850 / WPC1252).
+    | default_width: Default paper width in millimeters (80 or 58).
+    | codepage: Character encoding transliteration table (e.g. CP850, WPC1252).
     |
     */
     'default_width' => (int) env('NYXO_PRINTER_DEFAULT_WIDTH', 80),

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Ejecuta las migraciones del subsistema de impresión Nyxo.
+     * Run the database migrations for Nyxo Universal Printer.
      */
     public function up(): void
     {
@@ -17,7 +17,7 @@ return new class extends Migration
         $jobsTable = config('nyxo-printer.tables.jobs', 'print_jobs');
         $tenantColumn = config('nyxo-printer.tenant_column', 'empresa_id');
 
-        // 1. Tabla: printer_nodes (Nodos o puestos físicos de impresión)
+        // 1. Table: printer_nodes (Physical printing workstations)
         if (! Schema::hasTable($nodesTable)) {
             Schema::create($nodesTable, function (Blueprint $table) use ($tenantColumn) {
                 $table->id();
@@ -35,17 +35,17 @@ return new class extends Migration
             });
         }
 
-        // 2. Tabla: print_jobs (Cola atómica de trabajos de impresión)
+        // 2. Table: print_jobs (Atomic print jobs queue)
         if (! Schema::hasTable($jobsTable)) {
             Schema::create($jobsTable, function (Blueprint $table) use ($nodesTable) {
                 $table->id();
                 $table->foreignId('printer_node_id')->constrained($nodesTable)->cascadeOnDelete();
                 $table->string('format', 50)->default('a4'); // 'a4', 'ticket_80mm', 'ticket_58mm', 'raw'
                 $table->enum('content_type', [
-                    'pdf_base64',       // Para impresoras convencionales A4/Carta
-                    'escpos_base64',    // Para impresoras térmicas nativas ESC/POS
-                    'raw_text',         // Para impresoras matriciales/de impacto
-                    'json_structured',   // Formato legacy estructurado
+                    'pdf_base64',       // Standard A4/Letter PDF printers
+                    'escpos_base64',    // Native ESC/POS thermal receipt printers
+                    'raw_text',         // Dot matrix / impact printers
+                    'json_structured',   // Legacy structured payload
                 ])->default('pdf_base64');
                 $table->longText('content');
                 $table->enum('status', ['pending', 'processing', 'printed', 'failed'])->default('pending');
@@ -53,14 +53,14 @@ return new class extends Migration
                 $table->text('error_message')->nullable();
                 $table->timestamps();
 
-                // Índice compuesto de alta velocidad para la consulta de Polling concurrente
+                // High-performance compound index for concurrent agent polling queries
                 $table->index(['printer_node_id', 'status', 'created_at']);
             });
         }
     }
 
     /**
-     * Revierte las migraciones.
+     * Reverse the migrations.
      */
     public function down(): void
     {

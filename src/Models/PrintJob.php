@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Representa un trabajo de impresión encolado para un nodo físico.
+ * Represents a queued print job for a physical printer workstation.
  *
  * @property int $id
  * @property int $printer_node_id
@@ -45,7 +45,7 @@ class PrintJob extends Model
     ];
 
     /**
-     * Define los casts de atributos.
+     * Define attribute casts.
      */
     protected function casts(): array
     {
@@ -58,7 +58,7 @@ class PrintJob extends Model
     }
 
     /**
-     * Relación con el Nodo de Impresión destino.
+     * Relationship with the target Printer Node.
      */
     public function printerNode(): BelongsTo
     {
@@ -66,7 +66,7 @@ class PrintJob extends Model
     }
 
     /**
-     * Scope para filtrar trabajos pendientes.
+     * Scope to filter pending jobs.
      */
     public function scopePending(Builder $query): Builder
     {
@@ -74,7 +74,7 @@ class PrintJob extends Model
     }
 
     /**
-     * Scope para filtrar por nodo de impresión.
+     * Scope to filter by printer node.
      */
     public function scopeForNode(Builder $query, int $nodeId): Builder
     {
@@ -82,9 +82,9 @@ class PrintJob extends Model
     }
 
     /**
-     * Scope para obtener trabajos entregables al Agente de escritorio.
-     * Incluye trabajos 'pending' y rescata automáticamente trabajos huérfanos 'processing'
-     * que hayan superado el tiempo límite sin confirmación (por cortes de luz o desconexión).
+     * Scope to retrieve deliverable jobs for the desktop agent.
+     * Includes 'pending' jobs and automatically rescues orphaned 'processing' jobs
+     * that exceeded the timeout threshold without completion (e.g. power loss or crash).
      */
     public function scopeDeliverable(Builder $query, int $nodeId): Builder
     {
@@ -104,7 +104,7 @@ class PrintJob extends Model
     }
 
     /**
-     * Define qué registros son elegibles para ser purgados automáticamente.
+     * Determine which records are eligible for automatic pruning.
      */
     public function prunable(): Builder
     {

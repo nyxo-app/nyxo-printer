@@ -10,7 +10,7 @@ use Nyxo\Printer\Contracts\PrintTemplateInterface;
 use Nyxo\Printer\Models\PrintJob;
 
 /**
- * Fluent Builder unificado para la configuración y despacho de trabajos de impresión.
+ * Unified Fluent Builder for configuring and dispatching print jobs.
  *
  * @method self title(string $text, bool $doubleWidth = true, bool $doubleHeight = true, string $align = 'center')
  * @method self text(string $text, string $align = 'left', bool $bold = false, bool $underline = false, bool $doubleHeight = false, bool $doubleWidth = false)
@@ -18,7 +18,7 @@ use Nyxo\Printer\Models\PrintJob;
  * @method self right(string $text, bool $bold = false)
  * @method self line(string $char = '-')
  * @method self doubleLine(string $char = '=')
- * @method self table(array $items, string $headerLeft = 'DESCRIPCION', string $headerRight = 'PRECIO')
+ * @method self table(array $items, string $headerLeft = 'DESCRIPTION', string $headerRight = 'PRICE')
  * @method self total(float $amount, string $label = 'TOTAL:', string $currency = '$')
  * @method self barcode(string $code, string $type = 'CODE39')
  * @method self qr(string $content, int $size = 6, string $errorCorrection = 'M')
@@ -50,7 +50,7 @@ class PrintJobBuilder
     }
 
     /**
-     * Define la cantidad de copias a imprimir.
+     * Set the number of copies to print.
      */
     public function copies(int $copies): self
     {
@@ -60,7 +60,7 @@ class PrintJobBuilder
     }
 
     /**
-     * Define el formato de salida ('a4', 'ticket_80mm', 'ticket_58mm', 'raw').
+     * Define the output format ('a4', 'ticket_80mm', 'ticket_58mm', 'raw').
      */
     public function format(string $format): self
     {
@@ -70,7 +70,7 @@ class PrintJobBuilder
     }
 
     /**
-     * Define el ancho del papel térmico en mm (80 o 58) y adapta el formato.
+     * Set the thermal paper width in mm (80 or 58) and automatically adjust format.
      */
     public function width(int $width): self
     {
@@ -81,7 +81,7 @@ class PrintJobBuilder
     }
 
     /**
-     * Configura el trabajo para imprimir un documento PDF mediante su cadena Base64.
+     * Configure the job to print a PDF document via Base64 string.
      */
     public function pdf(string $base64, string $format = 'a4'): self
     {
@@ -93,24 +93,24 @@ class PrintJobBuilder
     }
 
     /**
-     * Carga un archivo PDF existente desde el disco y lo codifica en Base64 para imprimir.
+     * Load an existing PDF file from disk and encode it to Base64 for printing.
      */
     public function pdfFile(string $filePath, string $format = 'a4'): self
     {
         if (! file_exists($filePath)) {
-            throw new InvalidArgumentException("El archivo PDF no existe en la ruta: {$filePath}");
+            throw new InvalidArgumentException("PDF file does not exist at path: {$filePath}");
         }
 
         $data = file_get_contents($filePath);
         if ($data === false) {
-            throw new InvalidArgumentException("No se pudo leer el archivo PDF: {$filePath}");
+            throw new InvalidArgumentException("Unable to read PDF file at path: {$filePath}");
         }
 
         return $this->pdf(base64_encode($data), $format);
     }
 
     /**
-     * Configura el trabajo para imprimir texto plano ASCII (impresoras de impacto/matriciales).
+     * Configure the job to print raw ASCII text (e.g. impact / dot matrix printers).
      */
     public function raw(string $text, string $format = 'raw'): self
     {
@@ -122,7 +122,7 @@ class PrintJobBuilder
     }
 
     /**
-     * Configura el trabajo para imprimir un payload JSON estructurado.
+     * Configure the job to print structured JSON data.
      */
     public function json(array $data, string $format = 'json'): self
     {
@@ -134,7 +134,7 @@ class PrintJobBuilder
     }
 
     /**
-     * Aplica una plantilla predefinida que implemente PrintTemplateInterface.
+     * Apply a predefined template implementing PrintTemplateInterface.
      */
     public function template(PrintTemplateInterface $template): self
     {
@@ -144,7 +144,7 @@ class PrintJobBuilder
     }
 
     /**
-     * Delega llamadas de métodos térmicos directamente al ThermalBuilder interno.
+     * Delegate thermal formatting calls directly to the underlying ThermalBuilder.
      */
     public function __call(string $name, array $arguments): mixed
     {
@@ -156,18 +156,18 @@ class PrintJobBuilder
             return $this;
         }
 
-        throw new InvalidArgumentException("El método [{$name}] no existe en ".static::class);
+        throw new InvalidArgumentException("Method [{$name}] does not exist on ".static::class);
     }
 
     /**
-     * Despacha y guarda el trabajo de impresión en la base de datos para el nodo asignado.
+     * Persist and enqueue the print job in the database for the designated printer node.
      */
     public function send(): PrintJob
     {
         $this->resolvePayload();
 
         if (! $this->contentType || ! $this->content) {
-            throw new InvalidArgumentException('No se ha definido ningún contenido para imprimir (PDF, texto térmico o raw).');
+            throw new InvalidArgumentException('No printable content defined (PDF, thermal ESC/POS, or raw text).');
         }
 
         return $this->printService->enqueue(
@@ -180,7 +180,7 @@ class PrintJobBuilder
     }
 
     /**
-     * Genera una previsualización en HTML del documento para depuración en desarrollo.
+     * Generate an HTML preview of the document for development and debugging.
      */
     public function preview(): string
     {
@@ -192,7 +192,7 @@ class PrintJobBuilder
             return '<iframe src="data:application/pdf;base64,'.$this->content.'" style="width:100%; height:600px; border:none;"></iframe>';
         }
 
-        return '<pre style="background:#f8fafc; padding:16px; border:1px solid #e2e8f0; font-family:monospace;">'.htmlspecialchars($this->content ?? 'Sin contenido').'</pre>';
+        return '<pre style="background:#f8fafc; padding:16px; border:1px solid #e2e8f0; font-family:monospace;">'.htmlspecialchars($this->content ?? 'No content').'</pre>';
     }
 
     protected function getThermalBuilder(): ThermalBuilder
