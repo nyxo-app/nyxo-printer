@@ -1,7 +1,7 @@
 # 🖨️ Nyxo Universal Printer for Laravel
 
 <p align="center">
-  <a href="https://printer.nyxo.app">
+  <a href="https://nyxo.ar/printer">
     <img src="https://raw.githubusercontent.com/nyxo-app/nyxo-printer/main/art/banner.png" alt="Nyxo Universal Printer Banner" width="100%" onerror="this.style.display='none'">
   </a>
 </p>
@@ -17,7 +17,7 @@
   <a href="LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="License: MIT"></a>
   <a href="https://php.net"><img src="https://img.shields.io/badge/PHP-8.2%2B-8b5cf6.svg?style=flat-square" alt="PHP Version"></a>
   <a href="https://laravel.com"><img src="https://img.shields.io/badge/Laravel-10%20%7C%2011%20%7C%2012%20%7C%2013-f43f5e.svg?style=flat-square" alt="Laravel Support"></a>
-  <a href="https://printer.nyxo.app"><img src="https://img.shields.io/badge/Website-printer.nyxo.app-0284c7.svg?style=flat-square" alt="Official Website"></a>
+  <a href="https://nyxo.ar/printer"><img src="https://img.shields.io/badge/Website-nyxo.ar%2Fprinter-0284c7.svg?style=flat-square" alt="Official Website"></a>
 </p>
 
 <p align="center">
@@ -66,7 +66,7 @@ Printing physical receipts, kitchen orders, barcodes, or A4 invoices from modern
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────┐
 │             NYXO UNIVERSAL PRINTER AGENT (Client PC / POS)             │
-│                 Download from: https://printer.nyxo.app                │
+│                 Download from: https://nyxo.ar/printer                │
 │                                                                        │
 │   - Pulls print jobs silently in background                            │
 │   - Free unlimited printing on localhost & *.test                      │
@@ -90,10 +90,10 @@ Printing physical receipts, kitchen orders, barcodes, or A4 invoices from modern
 
 To print to physical USB, Network, or Bluetooth printers silently, the client Windows computer runs the **Nyxo Universal Printer Agent**.
 
-> ### ⬇️ [Download the Windows Desktop Agent from printer.nyxo.app](https://printer.nyxo.app)
+> ### ⬇️ [Download the Windows Desktop Agent from nyxo.ar/printer](https://nyxo.ar/printer)
 > 
 > * **Localhost Grace:** 100% free and unlimited when testing on `localhost`, `127.0.0.1`, or `*.test`.
-> * **Free Developer Tier:** Claim **1 Free Terminal Seat** for your first production cashier terminal at [printer.nyxo.app](https://printer.nyxo.app) (no credit card required).
+> * **Free Developer Tier:** Claim **1 Free Terminal Seat** for your first production cashier terminal at [nyxo.ar/printer](https://nyxo.ar/printer) (no credit card required).
 
 ---
 
@@ -219,7 +219,7 @@ Route::get('/preview-ticket', function () {
                    ['nombre' => 'Test Item 2', 'precio' => 3400],
                ])
                ->total(4600)
-               ->qr('https://printer.nyxo.app')
+               ->qr('https://nyxo.ar/printer')
                ->cut();
     }, width: 80);
 });
@@ -341,12 +341,12 @@ return [
 ## 🤝 Community & Commercial Support
 
 * **Issues & Bugs:** [GitHub Issues](https://github.com/nyxo-app/nyxo-printer/issues)
-* **Desktop Agent & Commercial Licenses:** [printer.nyxo.app](https://printer.nyxo.app)
-* **Lead Magnet:** Claim your 1-seat free developer key with zero credit card at [printer.nyxo.app](https://printer.nyxo.app).
+* **Desktop Agent & Commercial Licenses:** [nyxo.ar/printer](https://nyxo.ar/printer)
+* **Lead Magnet:** Claim your 1-seat free developer key with zero credit card at [nyxo.ar/printer](https://nyxo.ar/printer).
 
 ---
 
 ## 📄 License
 
 The Nyxo Universal Printer Laravel Package is open-sourced software licensed under the [MIT License](LICENSE.md).  
-The Nyxo Universal Printer Desktop Agent is proprietary commercial software licensed via [Lemon Squeezy](https://printer.nyxo.app).
+The Nyxo Universal Printer Desktop Agent is proprietary commercial software licensed via [Lemon Squeezy](https://nyxo.ar/printer).

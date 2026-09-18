@@ -38,7 +38,7 @@ return [
     | agent, claim licenses, or access documentation.
     |
     */
-    'portal_url' => env('NYXO_PRINTER_PORTAL_URL', 'https://printer.nyxo.app'),
+    'portal_url' => env('NYXO_PRINTER_PORTAL_URL', 'https://nyxo.ar/printer'),
 
     /*
     |--------------------------------------------------------------------------

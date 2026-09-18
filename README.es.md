@@ -1,7 +1,7 @@
 # 🖨️ Nyxo Universal Printer para Laravel
 
 <p align="center">
-  <a href="https://printer.nyxo.app">
+  <a href="https://nyxo.ar/printer">
     <img src="https://raw.githubusercontent.com/nyxo-app/nyxo-printer/main/art/banner.png" alt="Nyxo Universal Printer Banner" width="100%" onerror="this.style.display='none'">
   </a>
 </p>
@@ -17,7 +17,7 @@
   <a href="LICENSE.md"><img src="https://img.shields.io/badge/Licencia-MIT-blue.svg?style=flat-square" alt="Licencia: MIT"></a>
   <a href="https://php.net"><img src="https://img.shields.io/badge/PHP-8.2%2B-8b5cf6.svg?style=flat-square" alt="Versión de PHP"></a>
   <a href="https://laravel.com"><img src="https://img.shields.io/badge/Laravel-10%20%7C%2011%20%7C%2012%20%7C%2013-f43f5e.svg?style=flat-square" alt="Soporte Laravel"></a>
-  <a href="https://printer.nyxo.app"><img src="https://img.shields.io/badge/Web_Oficial-printer.nyxo.app-0284c7.svg?style=flat-square" alt="Web Oficial"></a>
+  <a href="https://nyxo.ar/printer"><img src="https://img.shields.io/badge/Web_Oficial-nyxo.ar%2Fprinter-0284c7.svg?style=flat-square" alt="Web Oficial"></a>
 </p>
 
 <p align="center">
@@ -66,7 +66,7 @@ Imprimir tickets fiscales, comandas de cocina o comprobantes A4 desde una aplica
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────┐
 │            AGENTE DE ESCRITORIO NYXO UNIVERSAL PRINTER                 │
-│              Descarga directa en: https://printer.nyxo.app             │
+│              Descarga directa en: https://nyxo.ar/printer             │
 │                                                                        │
 │   - Retira los trabajos en segundo plano silenciosamente               │
 │   - Uso gratuito e ilimitado en localhost y *.test                     │
@@ -90,10 +90,10 @@ Imprimir tickets fiscales, comandas de cocina o comprobantes A4 desde una aplica
 
 Para imprimir físicamente en impresoras USB, de Red (Ethernet/WiFi) o Bluetooth sin diálogos emergentes, la computadora cliente (con Windows) corre el **Agente de Escritorio Nyxo Universal Printer**.
 
-> ### ⬇️ [Descargar el Instalador de Windows desde printer.nyxo.app](https://printer.nyxo.app)
+> ### ⬇️ [Descargar el Instalador de Windows desde nyxo.ar/printer](https://nyxo.ar/printer)
 > 
 > * **Localhost Grace:** 100% libre e ilimitado para pruebas en entornos locales (`localhost`, `127.0.0.1`, `*.test` o emulador C#).
-> * **Tier Gratuito para Desarrolladores:** Obtén **1 Puesto de Producción Gratuito** de por vida desde [printer.nyxo.app](https://printer.nyxo.app) (sin solicitar tarjeta de crédito).
+> * **Tier Gratuito para Desarrolladores:** Obtén **1 Puesto de Producción Gratuito** de por vida desde [nyxo.ar/printer](https://nyxo.ar/printer) (sin solicitar tarjeta de crédito).
 
 ---
 
@@ -219,7 +219,7 @@ Route::get('/preview-ticket', function () {
                    ['nombre' => 'Producto de Prueba B', 'precio' => 3400],
                ])
                ->total(4600)
-               ->qr('https://printer.nyxo.app')
+               ->qr('https://nyxo.ar/printer')
                ->cut();
     }, width: 80);
 });
@@ -329,12 +329,12 @@ return [
 ## 🤝 Comunidad y Soporte Comercial
 
 * **Reportes de Errores y Sugerencias:** [GitHub Issues](https://github.com/nyxo-app/nyxo-printer/issues)
-* **Descarga del Agente y Licencias Comerciales:** [printer.nyxo.app](https://printer.nyxo.app)
-* **Lead Magnet:** Solicita tu clave gratuita de 1 puesto de producción sin tarjeta de crédito en [printer.nyxo.app](https://printer.nyxo.app).
+* **Descarga del Agente y Licencias Comerciales:** [nyxo.ar/printer](https://nyxo.ar/printer)
+* **Lead Magnet:** Solicita tu clave gratuita de 1 puesto de producción sin tarjeta de crédito en [nyxo.ar/printer](https://nyxo.ar/printer).
 
 ---
 
 ## 📄 Licencia
 
 El paquete de Laravel de Nyxo Universal Printer es software de código abierto bajo la [Licencia MIT](LICENSE.md).  
-El Agente de Escritorio de Windows es software propietario comercial licenciado a través de [Lemon Squeezy](https://printer.nyxo.app).
+El Agente de Escritorio de Windows es software propietario comercial licenciado a través de [Lemon Squeezy](https://nyxo.ar/printer).
