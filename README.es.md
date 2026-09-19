@@ -145,24 +145,111 @@ php artisan migrate
 
 ---
 
-## 💻 Puesta en Marcha en 1 Minuto
+## 💻 Configuración de Nodos, Tokens y Agente Windows (Paso a Paso)
 
-### 1. Crear un Nodo / Puesto de Impresión
+Para enviar trabajos de impresión a impresoras físicas (térmicas o convencionales) sin abrir puertos ni lidiar con IPs fijas o NAT en el router del cliente, Nyxo utiliza una arquitectura de **Nodos de Impresión autenticados por Token**.
 
-Un **Nodo de Impresión** representa una terminal física o caja registradora:
+```
+┌────────────────────────────────────────────────────────┐
+│             Servidor Laravel (Nube / VPS)              │
+│  • Modelo PrinterNode con Token único por terminal     │
+│  • Encola trabajos binarios en la tabla `print_jobs`   │
+└───────────────────────────┬────────────────────────────┘
+                            ▲
+                            │  HTTPS saliente (Outbound Long-Polling / Heartbeat)
+                            │  Header: Authorization: Bearer <print_token>
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│             PC de Caja / Punto de Venta                │
+│  • NyxoUniversalPrinter.exe (Agente de Impresión)      │
+│  • Conectada a la impresora física por USB o Red Local │
+│  • Impresora Térmica 80mm / 58mm o Convencional A4     │
+└────────────────────────────────────────────────────────┘
+```
+
+---
+
+### Paso 1: Crear el Nodo y Obtener el Token en Laravel
+
+Cada puesto físico (Caja 1, Cocina, Despacho) se registra como un `PrinterNode`. Al crearse, Laravel genera automáticamente un token criptográfico de 60 caracteres y el código de enlace:
 
 ```php
 use Nyxo\Printer\Models\PrinterNode;
 
+// En un Seeder, Controlador o mediante Tinker:
 $nodo = PrinterNode::create([
-    'name' => 'Caja Principal Mostrador',
-    'driver' => 'thermal_80mm', // 'thermal_80mm' | 'thermal_58mm' | 'a4'
-    'status' => 'online',
+    'name' => 'Caja 1 - Mostrador Principal',
+    // 'empresa_id' => 1, // Opcional si operas en modo multi-tenant
     'is_active' => true,
 ]);
 
-// Obtén el código de enlace en 1 clic para configurar el agente sin escribir a mano:
-$codigoEnlace = $nodo->codigo_enlace;
+// 1. Token criptográfico puro (para configuración manual o APIs externas):
+$token = $nodo->print_token;
+// Resultado: "7kL9vP2xR8qW1yT5mN4zB6cA0dF3gH7jK2lM5nP8rS1tV4wY7bC0eG3hJ6kL9mN"
+
+// 2. Código de Enlace Rápido (Recomendado: URL + Token empaquetados en Base64):
+$codigoEnlace = $nodo->codigo_enlace; 
+// Resultado: "aHR0cHM6Ly9taS1wb3MuY29tL2FwaS92MS9wcmludHw3a0w5dlAyeFI4..."
+```
+
+> 💡 **Tip:** En tu panel de administración (Filament, Nova o Blade), agrega un botón para **"Copiar Código de Enlace"** o un código QR para que el usuario o técnico configure la PC en 2 clics.
+
+---
+
+### Paso 2: Dónde y Cómo se Coloca el Token en la PC de la Impresora
+
+En la computadora con Windows donde está enchufada la impresora térmica o A4:
+
+1. **Abrir Nyxo Universal Printer** (`NyxoUniversalPrinter.exe`).
+2. Ir a la pestaña **⚙️ Conexión / Configuración**.
+3. **Vincular la Terminal (2 métodos disponibles):**
+   - **Método A (Recomendado - 1 Clic):** Pegar el string copiado de `$nodo->codigo_enlace` en el campo **"Código de Enlace Rápido"** y pulsar **"Vincular"**. El agente decodifica automáticamente la URL de tu servidor Laravel y el token de autenticación.
+   - **Método B (Manual):** Introducir la URL base del endpoint (ej. `https://mi-sistema.com/api/v1/print`) y en el campo **Token** pegar el `$nodo->print_token`.
+4. En el selector de **Impresora de Windows**, elegir el dispositivo local asignado (ej. *POS-80*, *Epson TM-T20*, *Generic Text Only* o el *Emulador Térmico ESSI* durante desarrollo).
+5. Hacer clic en **"Guardar y Conectar"**.
+
+---
+
+### Paso 3: Verificación de Estado en Tiempo Real (Heartbeat)
+
+En cuanto el agente de Windows se vincula, comienza a emitir un pulso automático cada 5 segundos hacia tu servidor Laravel (`GET /api/v1/print/ping`). Laravel actualiza la columna `last_ping_at` silenciosamente.
+
+Puedes consultar el estado de conexión del puesto en cualquier momento:
+
+```php
+// Comprueba si la terminal física emitió un pulso en los últimos 2 minutos:
+if ($nodo->is_online) {
+    // 🟢 Terminal conectada, agente activo y listo para imprimir
+} else {
+    // 🔴 Computadora apagada, agente cerrado o sin conexión a internet
+}
+```
+
+En tus vistas Blade o componentes Livewire:
+
+```blade
+<div class="flex items-center gap-2">
+    <span class="w-3 h-3 rounded-full {{ $nodo->is_online ? 'bg-emerald-500' : 'bg-rose-500' }}"></span>
+    <span>{{ $nodo->name }} ({{ $nodo->is_online ? '🟢 Conectado' : '🔴 Desconectado' }})</span>
+</div>
+```
+
+---
+
+### Paso 4: Seguridad, Aislamiento y Rotación de Tokens
+
+- **Aislamiento Estricto:** Cada caja solo recibe los trabajos de impresión (`PrintJob`) asignados a su respectivo `printer_node_id`. Caja 2 jamás interceptará un ticket enviado a Caja 1.
+- **Sin Apertura de Puertos:** Toda la comunicación se origina desde la PC del cliente hacia Laravel vía HTTPS saliente (puerto 443 estándar). Es compatible con routers domésticos, CGNAT, hotspots 4G/5G y redes corporativas con firewall restrictivo.
+- **Rotación Inmediata de Tokens:** Si una computadora es dada de baja o reemplazada, puedes invalidar su acceso al instante:
+
+```php
+// Regenerar un nuevo token para el puesto (el agente anterior queda revocado al instante):
+$nodo->update([
+    'print_token' => PrinterNode::generateToken(),
+]);
+
+// O desactivar temporalmente el nodo:
+$nodo->update(['is_active' => false]);
 ```
 
 ---

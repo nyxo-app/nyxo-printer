@@ -45,6 +45,21 @@ class PrinterNode extends Model
     ];
 
     /**
+     * Bootstrap model events.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (self $node): void {
+            if (empty($node->print_token)) {
+                $node->print_token = static::generateToken();
+            }
+            if (empty($node->pairing_code)) {
+                $node->pairing_code = static::generatePairingCode();
+            }
+        });
+    }
+
+    /**
      * Define attribute casts.
      */
     protected function casts(): array

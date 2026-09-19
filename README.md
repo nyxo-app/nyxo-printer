@@ -145,24 +145,111 @@ php artisan migrate
 
 ---
 
-## 💻 Quickstart Guide
+## 💻 Printer Nodes, Tokens & Windows Agent Setup (Step-by-Step)
 
-### 1. Create a Printer Node
+To dispatch print jobs to physical printers (thermal receipts or standard A4) without opening ports or configuring static IPs/NAT on the client's router, Nyxo uses a **Token-Authenticated Printer Node Architecture**.
 
-A **Printer Node** represents a physical workstation or cashier terminal:
+```
+┌────────────────────────────────────────────────────────┐
+│             Laravel Server (Cloud / VPS)               │
+│  • PrinterNode model with unique per-terminal Token    │
+│  • Enqueues atomic print jobs in `print_jobs` table    │
+└───────────────────────────┬────────────────────────────┘
+                            ▲
+                            │  Outbound HTTPS (Long-Polling / Heartbeat)
+                            │  Header: Authorization: Bearer <print_token>
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│             Cashier PC / Point of Sale                 │
+│  • NyxoUniversalPrinter.exe (Desktop Print Agent)      │
+│  • Connected to physical printer via USB or Local LAN  │
+│  • Thermal ESC/POS (80mm/58mm) or Standard A4 Printer  │
+└────────────────────────────────────────────────────────┘
+```
+
+---
+
+### Step 1: Create the Node & Generate the Token in Laravel
+
+Each physical workstation (Cashier 1, Kitchen, Dispatch) is registered as a `PrinterNode`. Upon creation, Laravel automatically generates a cryptographically secure 60-character token and the 1-click pairing string:
 
 ```php
 use Nyxo\Printer\Models\PrinterNode;
 
+// Inside a Seeder, Controller or via Tinker:
 $node = PrinterNode::create([
-    'name' => 'Main Cashier Register',
-    'driver' => 'thermal_80mm', // 'thermal_80mm' | 'thermal_58mm' | 'a4'
-    'status' => 'online',
+    'name' => 'Cashier 1 - Main Front Desk',
+    // 'empresa_id' => 1, // Optional: if operating in a multi-tenant environment
     'is_active' => true,
 ]);
 
-// Get the 1-click pairing string to link the desktop agent instantly
-$pairingCode = $node->codigo_enlace; 
+// 1. Raw cryptographic token (60 random chars for manual setup or external APIs):
+$token = $node->print_token;
+// Example: "7kL9vP2xR8qW1yT5mN4zB6cA0dF3gH7jK2lM5nP8rS1tV4wY7bC0eG3hJ6kL9mN"
+
+// 2. 1-Click Pairing String (Recommended: URL + Token bundled in Base64):
+$pairingString = $node->pairing_string; // or $node->codigo_enlace
+// Example: "aHR0cHM6Ly9teS1wb3MuY29tL2FwaS92MS9wcmludHw3a0w5dlAyeFI4..."
+```
+
+> 💡 **Tip:** In your admin dashboard (Filament, Nova or Blade), add a **"Copy Pairing Code"** button or QR code so technicians can link cashier PCs in seconds without typing URLs or tokens by hand.
+
+---
+
+### Step 2: Where & How to Configure the Token on the Windows PC
+
+On the Windows computer physically connected to the thermal or A4 printer:
+
+1. **Launch Nyxo Universal Printer** (`NyxoUniversalPrinter.exe`).
+2. Navigate to the **⚙️ Connection / Settings** tab.
+3. **Link the Workstation (2 available methods):**
+   - **Method A (Recommended - 1 Click):** Paste the string obtained from `$node->pairing_string` into the **"Quick Connect Code"** field and click **"Connect"**. The desktop agent automatically parses the backend URL and the authentication token.
+   - **Method B (Manual):** Enter your Laravel API endpoint URL (e.g. `https://my-pos.com/api/v1/print`) and paste `$node->print_token` in the **Token** field.
+4. From the **Windows Printer** dropdown, select the local device (e.g. *POS-80*, *Epson TM-T20*, *Generic Text Only*, or the *ESSI Thermal Emulator* during development).
+5. Click **"Save & Connect"**.
+
+---
+
+### Step 3: Real-Time Heartbeat & Online Status
+
+As soon as the Windows agent connects, it sends an automatic ping every 5 seconds to your Laravel server (`GET /api/v1/print/ping`). Laravel updates `last_ping_at` quietly without triggering heavy model observers.
+
+You can check whether the workstation is currently online from anywhere in your Laravel code:
+
+```php
+// Checks if the physical terminal reported a heartbeat within the last 2 minutes:
+if ($node->is_online) {
+    // 🟢 Terminal connected, desktop agent running, ready to print
+} else {
+    // 🔴 PC powered off, agent closed, or no internet connection
+}
+```
+
+In your Blade templates or Livewire views:
+
+```blade
+<div class="flex items-center gap-2">
+    <span class="w-3 h-3 rounded-full {{ $node->is_online ? 'bg-emerald-500' : 'bg-rose-500' }}"></span>
+    <span>{{ $node->name }} ({{ $node->is_online ? '🟢 Online' : '🔴 Offline' }})</span>
+</div>
+```
+
+---
+
+### Step 4: Security, Multi-Terminal Isolation & Token Rotation
+
+- **Strict Isolation:** Each workstation only receives print jobs (`PrintJob`) queued specifically for its own `printer_node_id`. Register 2 will never intercept receipts sent to Register 1.
+- **Zero Port Forwarding:** All network communication originates from the client PC to Laravel over outbound HTTPS (standard port 443). Works out-of-the-box behind home routers, NAT/CGNAT, mobile 4G/5G hotspots, and strict corporate firewalls.
+- **Instant Token Revocation:** If a computer is decommissioned, stolen, or replaced, you can revoke its credentials instantly without touching any other registers:
+
+```php
+// Rotate the token (the previous desktop client is immediately disconnected):
+$node->update([
+    'print_token' => PrinterNode::generateToken(),
+]);
+
+// Or temporarily deactivate the node:
+$node->update(['is_active' => false]);
 ```
 
 ---
