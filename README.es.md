@@ -84,16 +84,37 @@ Imprimir tickets fiscales, comandas de cocina o comprobantes A4 desde una aplica
     └───────────────────────────────┘   └───────────────────────────────┘
 ```
 
+## 🚀 Flujo de Implementación: Entorno de Desarrollo vs. Producción
+
+Para que tu experiencia y la de tus clientes sea óptima, el ecosistema se divide en dos fases bien diferenciadas:
+
+### 🛠️ FASE 1: Inicio para Desarrolladores (Tu Máquina de Trabajo / Testing)
+*Objetivo: Programar, diseñar plantillas de tickets y probar todo en local sin gastar rollos de papel térmico.*
+
+1. **Instala el paquete en tu proyecto Laravel:**
+   ```bash
+   composer require nyxo-app/nyxo-printer
+   php artisan nyxo-printer:install
+   php artisan migrate
+   ```
+2. **Obtén tu Licencia Gratuita de Desarrollador ($0 USD):**
+   Solicita tu clave oficial en [printer.nyxo.ar](https://printer.nyxo.ar) para activar tu terminal de pruebas.
+3. **Descarga Nyxo Universal Printer:**
+   El agente de Windows que gestiona la impresión silenciosa con el hardware real: [Descargar Instalador](https://printer.nyxo.ar).
+4. **Descarga ESSI Thermal Emulator (Simulador de Tickets en Pantalla):**
+   ¿No tienes la impresora térmica conectada en tu escritorio? Ejecuta el emulador bilingüe (Win/Mac/Linux) que escucha en el puerto TCP `9100` y renderiza el ticket en vivo de 80mm o 58mm con exportación a PDF.
+
 ---
 
-## 🖥️ Descarga del Agente de Escritorio
+### 🏢 FASE 2: Puesta en Producción (En el Comercio / Cliente Final)
+*Objetivo: Cero fricción, cero comandos técnicos y cero carga de soporte.*
 
-Para imprimir físicamente en impresoras USB, de Red (Ethernet/WiFi) o Bluetooth sin diálogos emergentes, la computadora cliente (con Windows) corre el **Agente de Escritorio Nyxo Universal Printer**.
+En las terminales físicas de punto de venta (cajas, mostradores, cocinas) de tus clientes **NO se necesita el emulador, ni Composer, ni terminales de comandos**:
 
-> ### ⬇️ [Descargar el Instalador de Windows desde printer.nyxo.ar](https://printer.nyxo.ar)
-> 
-> * **Localhost Grace:** 100% libre e ilimitado para pruebas en entornos locales (`localhost`, `127.0.0.1`, `*.test` o emulador C#).
-> * **Tier Gratuito para Desarrolladores:** Obtén **1 Puesto de Producción Gratuito** de por vida desde [printer.nyxo.ar](https://printer.nyxo.ar) (sin solicitar tarjeta de crédito).
+> ⚠️ **IMPORTANTE:** En la computadora del cliente final **ÚNICAMENTE se instala el ejecutable `Nyxo Universal Printer`**:
+> 1. El cliente o técnico descarga y ejecuta el instalador oficial de Windows (`.exe`).
+> 2. Pega la URL de tu aplicación web Laravel y la Clave de Licencia Comercial adquirida ($99, $199 o $399 USD).
+> 3. ¡Listo! La terminal física ya imprime automáticamente sin abrir cuadros de diálogo del navegador (`Ctrl+P`).
 
 ---
 

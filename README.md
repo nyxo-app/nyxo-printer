@@ -84,16 +84,37 @@ Printing physical receipts, kitchen orders, barcodes, or A4 invoices from modern
     └───────────────────────────────┘   └───────────────────────────────┘
 ```
 
+## 🚀 Implementation Workflow: Developer Setup vs. Production Deployment
+
+To ensure a seamless experience for both software developers and retail clients, the ecosystem is divided into two distinct phases:
+
+### 🛠️ PHASE 1: Developer Onboarding (Your Development Machine / Testing)
+*Goal: Code, design ticket templates, and test silent printing without wasting thermal paper rolls.*
+
+1. **Install the package in your Laravel project:**
+   ```bash
+   composer require nyxo-app/nyxo-printer
+   php artisan nyxo-printer:install
+   php artisan migrate
+   ```
+2. **Claim your Free Developer License ($0 USD):**
+   Request your official permanent key at [printer.nyxo.ar](https://printer.nyxo.ar) to activate your test terminal.
+3. **Download Nyxo Universal Printer:**
+   The silent Windows background agent that communicates with physical printer hardware: [Download Installer](https://printer.nyxo.ar).
+4. **Download ESSI Thermal Emulator (Virtual On-Screen POS Printer):**
+   No physical thermal printer plugged in today? Run the cross-platform emulator (Win/Mac/Linux) listening on TCP port `9100` to preview 80mm/58mm tickets and export PDFs on the fly.
+
 ---
 
-## 🖥️ Desktop Agent Download
+### 🏢 PHASE 2: Production Deployment (At Client Store / Retail POS)
+*Goal: Zero friction, zero command-line tools, and zero post-sale support liability.*
 
-To print to physical USB, Network, or Bluetooth printers silently, the client Windows computer runs the **Nyxo Universal Printer Agent**.
+At your client's physical retail terminals (cashier counters, kitchens, dispatch desks), **the client NEVER needs Composer, terminal commands, or the emulator**:
 
-> ### ⬇️ [Download the Windows Desktop Agent from printer.nyxo.ar](https://printer.nyxo.ar)
-> 
-> * **Localhost Grace:** 100% free and unlimited when testing on `localhost`, `127.0.0.1`, or `*.test`.
-> * **Free Developer Tier:** Claim **1 Free Terminal Seat** for your first production cashier terminal at [printer.nyxo.ar](https://printer.nyxo.ar) (no credit card required).
+> ⚠️ **IMPORTANT:** On the client's PC, **ONLY the `Nyxo Universal Printer` executable is installed**:
+> 1. The store owner or technician downloads and runs the official Windows installer (`.exe`).
+> 2. Enters your Laravel application URL and the Commercial License Key purchased from Lemon Squeezy ($99, $199, or $399 USD).
+> 3. Done! The physical terminal prints instantly and silently without any browser print popups (`Ctrl+P`).
 
 ---
 
