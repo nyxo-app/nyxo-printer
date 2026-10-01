@@ -217,7 +217,7 @@ $codigoEnlace = $nodo->codigo_enlace; // O alias $nodo->pairing_string
 #### 🔒 Estado Inicial Limpio de Fábrica (Seguridad y Privacidad)
 Por estricto diseño de seguridad comercial y privacidad multi-inquilino, el agente de escritorio de Nyxo se distribuye en **estado de fábrica 100% limpio y desvinculado**:
 - **Sin URLs ni Tokens Precargados:** Ni la dirección del servidor (`saasUrl`) ni las credenciales secretas del puesto (`tenantToken`) vienen predefinidas. La aplicación inicia vacía esperando la vinculación manual o mediante el código rápido.
-- **Sin Parámetros de Emulador por Defecto:** Los campos de destino del emulador C# o impresora de red (`emulatorUrl`) inician vacíos. En cajas y puntos de venta reales con ticketeras físicas conectadas por USB/Red, este campo no se utiliza ni interfiere en la operativa.
+- **Sin Parámetros de Emulador por Defecto (Prioridad Limpia):** Los campos de destino del emulador C# o impresora de red (`emulatorUrl`) inician vacíos. En cajas y puntos de venta reales con ticketeras físicas conectadas por USB/Red, este campo no se utiliza ni interfiere en la operativa. Si durante desarrollo se ingresa una dirección de emulador (ej: `127.0.0.1:9100`), el agente entra automáticamente en **Modo Emulador Exclusivo**, deshabilitando los selectores de impresoras físicas térmicas para mantener la interfaz limpia y redirigiendo todo el tráfico térmico a la ventana del emulador. Al vaciar el campo, las impresoras físicas se rehabilitan de inmediato.
 - **Sin Licencias ni Puertas Traseras Precargadas:** La terminal inicia sin licencia activa. Todas las licencias (tanto la modalidad gratuita para desarrolladores como los planes comerciales) se emiten exclusivamente a través de **Lemon Squeezy** (`https://printer.nyxo.ar`).
 
 #### 🛡️ Primer Inicio en Windows 10/11 (Aviso de SmartScreen)
@@ -545,10 +545,15 @@ Route::get('/dev/ticket-preview', function () {
 ### 7.2 Emulador de Hardware C# (ESSI Thermal Emulator)
 El **ESSI Thermal Emulator** es una herramienta auxiliar de simulación visual autónoma para desarrolladores, diseñada para diseñar plantillas y probar sin gastar rollos de papel térmico.
 - **Herramienta Opcional de Pruebas:** En cajas de cobro y puntos de venta reales con impresoras físicas USB, el emulador **NO se instala ni se utiliza**. El agente viene de fábrica con los campos de emulador completamente vacíos.
-- **Configuración Solo para Testing Local:**
+- **Regla de Prioridad Exclusiva del Emulador (Interfaz Limpia):**
+  Para prevenir conflictos operativos y evitar que el usuario deba reconfigurar o desvincular impresoras físicas cada vez que desea hacer pruebas, el Agente Nyxo incorpora una regla de prioridad automática:
+  - **Si el campo `emulatorUrl` está cargado (ej: `127.0.0.1:9100` en Ajustes):** El agente entra en **Modo Emulador Activo**. Los selectores de impresoras físicas térmicas (80mm y 58mm) se **deshabilitan automáticamente** en la pestaña *Impresoras* y se muestra un banner azul informativo: *"Modo Emulador Activo (Desarrollo) - Todas las impresiones térmicas se redirigen automáticamente a la emulación"*. El 100% de los tickets ESC/POS se despachan directamente al emulador en pantalla.
+  - **Si el campo `emulatorUrl` está vacío:** El banner desaparece y los selectores de impresoras físicas térmicas vuelven a habilitarse, despachando los trabajos a las ticketeras reales USB de Windows o por IP de red.
+  - *(Nota: La asignación de la impresora A4 permanece siempre activa e independiente, permitiendo imprimir facturas PDF físicas incluso con el emulador térmico encendido).*
+- **Flujo de Puesta en Marcha del Emulador:**
   1. Ejecutar el **ESSI Thermal Emulator** (`ESSIThermalEmulator.exe`), el cual abre un socket de escucha en el puerto TCP/HTTP `9100`.
-  2. En el Agente Nyxo, para conectar al emulador durante el desarrollo, ir a la pestaña **🖨️ Impresoras**, seleccionar **'🌐 Otra IP:Puerto de Red (TCP)...'** (o en la pestaña **⚙️ Ajustes**) e ingresar `127.0.0.1:9100`.
-  3. Al enviar trabajos desde Laravel, el emulador dibujará el ticket en pantalla con animación de salida de papel, conmutador de ancho 80mm/58mm y opción de exportación nativa a PDF.
+  2. En el Agente Nyxo, ir a la pestaña **⚙️ Ajustes** e ingresar en el campo **Emulador C# / Impresora de Red TCP** la dirección `127.0.0.1:9100` y presionar **Guardar Configuración**.
+  3. Al enviar trabajos desde Laravel, el agente redirigirá automáticamente el flujo ESC/POS al emulador, dibujando el ticket en pantalla con animación de salida de papel, conmutador de ancho 80mm/58mm y opción de exportación nativa a PDF.
 
 ---
 
@@ -913,6 +918,12 @@ Cada formato es autónomo y puede combinarse libremente:
 | **58 mm (Cocina)** | TCP RAW: `192.168.1.150:9100` | TCP RAW: `192.168.1.105:9100` | Windows USB: `POS-58` |
 | **A4 (Oficina)** | Windows Láser: `HP LaserJet Pro` | Windows Láser: `Brother HL-L2360D` | Windows Láser: `Canon G3010` |
 
+#### D. Conmutación Inteligente: Modo Emulador Exclusivo
+Para evitar confusiones entre impresoras físicas reales y el entorno de desarrollo, el agente implementa una regla de exclusividad limpia:
+- **Activación:** Al completar el campo de emulador en la pestaña *⚙️ Ajustes* (ej: `127.0.0.1:9100`), la pestaña *🖨️ Impresoras* despliega un banner destacado y **bloquea automáticamente los selectores de 80mm y 58mm**.
+- **Enrutamiento 100% Garantizado:** Todo ticket térmico saliente se envía al emulador virtual, sin importar qué impresora USB física hubiese quedado seleccionada previamente.
+- **Retorno a Producción:** Basta con borrar el texto del campo de emulador en Ajustes y guardar: los selectores de impresoras físicas térmicas se desbloquean inmediatamente y el agente vuelve a imprimir por el Spooler de Windows o socket TCP directo.
+
 > [!NOTE]
 > Botón **"🔄 Recargar Lista"**: Si conectas una nueva impresora USB mientras la aplicación está en marcha, simplemente pulsa este botón para refrescar la lista de dispositivos sin necesidad de reiniciar el programa.
 
@@ -921,10 +932,11 @@ Cada formato es autónomo y puede combinarse libremente:
 ### 10.6 Pestaña 4: Configuración General y Destino de Red Opcional (`settings-view`)
 
 - **Idioma / Language:** Permite alternar la interfaz gráfica y las notificaciones del sistema de forma dinámica entre **Español (ES)** e **Inglés (EN)**.
-- **Emulador C# / Impresora de Red TCP (Opcional):**
-  - Campo opcional que por defecto inicia **completamente vacío**. Si se utiliza el emulador de desarrollo `ESSIThermalEmulator` o una impresora Ethernet/TCP directa sin drivers, se puede ingresar aquí la dirección (ej: `127.0.0.1:9100` o `192.168.1.100:9100`).
+- **Emulador C# / Impresora de Red TCP (Opcional - Prioridad Absoluta):**
+  - Campo opcional que por defecto inicia **completamente vacío**. Si se utiliza el emulador de desarrollo `ESSIThermalEmulator` o una impresora Ethernet/TCP directa sin drivers, se ingresa aquí la dirección (ej: `127.0.0.1:9100` o `192.168.1.100:9100`).
+  - **Efecto de Prioridad:** Al contener un valor válido, activa el *Modo Emulador*, bloqueando las opciones térmicas físicas de la pestaña de Impresoras y redirigiendo todo el tráfico de tickets al destino configurado. Si se deja vacío, se restablece el funcionamiento estándar con impresoras físicas.
 - **Comportamiento sin Impresora Asignada:**
-  - Si una terminal recibe un trabajo pero el formato no tiene ninguna impresora seleccionada ni destino de red configurado, el agente rechaza el trabajo e informa claramente al operador que debe asignar una impresora en el panel, evitando fallbacks silenciosos a puertos locales no deseados.
+  - Si una terminal recibe un trabajo pero el formato no tiene ninguna impresora seleccionada ni destino de red o emulador configurado, el agente rechaza el trabajo e informa claramente al operador que debe asignar una impresora en el panel, evitando fallbacks silenciosos a puertos locales no deseados.
 - **Arrancar con Windows:**
   - Casilla de verificación para registrar el inicio desatendido al encender la PC. El agente se inicia silenciosamente minimizado en la bandeja del sistema (System Tray junto al reloj).
 

@@ -217,7 +217,7 @@ $pairingString = $node->pairing_string; // Or alias $node->codigo_enlace
 #### 🔒 Clean Factory State by Default (Security & Multi-Tenant Privacy)
 By strict security and multi-tenant isolation design, the official client application is distributed **100% clean and unlinked by default**:
 - **Zero Preloaded URLs or Tokens:** Neither the SaaS server endpoint (`saasUrl`) nor secret terminal tokens (`tenantToken`) come pre-configured. The desktop application starts completely empty, waiting for operator pairing via 1-click token or manual entry.
-- **Zero Preloaded Emulator Parameters:** The emulator and network printer address fields (`emulatorUrl`) start completely empty. On real production retail workstations with physical USB/Network thermal printers, this field is not used.
+- **Zero Preloaded Emulator Parameters (Clean Priority):** The emulator and network printer address fields (`emulatorUrl`) start completely empty. On real production retail workstations with physical USB/Network thermal printers, this field is not used. If an emulator address is configured during development (e.g. `127.0.0.1:9100`), the agent automatically activates **Exclusive Emulator Mode**, cleanly disabling physical thermal printer selectors and routing 100% of thermal receipt jobs to the on-screen emulator. Clearing the field instantly restores physical printers.
 - **Unlicensed Initial State & Zero Backdoors:** The application launches without any pre-loaded license key. All licenses (including the 100% free Developer license and commercial plans) are issued exclusively through **Lemon Squeezy** (`https://printer.nyxo.ar`).
 
 #### 🛡️ First Launch on Windows 10/11 (SmartScreen Notice)
@@ -532,9 +532,14 @@ Route::get('/dev/ticket-preview', function () {
 ### 7.2 Hardware C# Emulator (ESSI Thermal Emulator)
 The **ESSI Thermal Emulator** is an optional standalone visual simulator for developers, designed to craft receipt templates and test workflows without wasting physical thermal paper rolls.
 - **Optional Testing Utility:** In real cash registers and production retail stores with physical USB/Network thermal printers, the emulator is **NOT installed or utilized**. The desktop agent ships from factory with emulator address fields completely empty.
-- **Local Testing Setup:**
+- **Exclusive Emulator Priority Rule (Clean UI Lock):**
+  To eliminate routing conflicts and remove the burden of unbinding physical printers during testing, the Nyxo Agent enforces an intelligent priority toggle:
+  - **When `emulatorUrl` is populated (e.g. `127.0.0.1:9100` in Settings):** The agent enters **Active Emulator Mode**. Physical thermal printer dropdowns (80mm & 58mm) are **automatically disabled** in the *Printers* tab, and an informative blue notification banner is displayed: *"Emulator Mode Active (Dev) - All thermal print jobs are automatically redirected to the emulator"*. 100% of ESC/POS receipt jobs route straight to the on-screen emulator.
+  - **When `emulatorUrl` is left empty:** The banner is hidden and physical thermal printer selectors are restored, routing jobs to physical Windows Spooler USB printers or TCP network printers.
+  - *(Note: A4 document assignment remains independent and active, allowing physical laser/inkjet printing even when the thermal emulator is active).*
+- **Local Testing Workflow:**
   1. Launch **ESSI Thermal Emulator** (`ESSIThermalEmulator.exe`), which starts a TCP/HTTP listener on port `9100`.
-  2. In the Nyxo Agent, to route print jobs to the emulator during development, navigate to the **🖨️ Printers** tab, select **'🌐 Custom Network IP:Port (TCP)...'** (or go to the **⚙️ Settings** tab) and enter `127.0.0.1:9100`.
+  2. In the Nyxo Agent, navigate to the **⚙️ Settings** tab, enter `127.0.0.1:9100` in the **C# Emulator / TCP Socket Destination** field, and click **Save Settings**.
   3. Jobs sent from Laravel will now render on-screen with virtual paper roll animations, 80mm/58mm width toggle, and native PDF export options.
 
 ---
@@ -896,6 +901,12 @@ Every format operates independently and can be freely combined:
 | **58 mm (Kitchen)** | TCP RAW: `192.168.1.150:9100` | TCP RAW: `192.168.1.105:9100` | Windows USB: `POS-58` |
 | **A4 (Back Office)** | Windows Laser: `HP LaserJet Pro` | Windows Laser: `Brother HL-L2360D` | Windows Laser: `Canon G3010` |
 
+#### D. Intelligent Switching: Exclusive Emulator Mode
+To prevent confusion between physical hardware and testing environments, the agent implements an exclusive priority toggle:
+- **Activation:** Entering an address in the *⚙️ Settings* emulator field (e.g. `127.0.0.1:9100`) displays an alert banner on the *🖨️ Printers* tab and **automatically disables 80mm and 58mm dropdowns**.
+- **100% Guaranteed Routing:** All outbound thermal receipt jobs route straight to the emulator socket, ignoring any physical USB printers that were previously assigned.
+- **Return to Production:** Simply clear the emulator field in Settings and save: physical thermal printer dropdowns are instantly re-enabled for Windows Spooler or TCP network printing.
+
 > [!NOTE]
 > **"🔄 Refresh List" Button:** If you plug in a new USB thermal printer while the agent is running, simply click this button to refresh device discovery without restarting the application.
 
@@ -904,10 +915,11 @@ Every format operates independently and can be freely combined:
 ### 10.6 Tab 4: General Settings & Optional Network Target (`settings-view`)
 
 - **Language Toggle:** Dynamically switch the user interface and system notifications between **English (EN)** and **Spanish (ES)**.
-- **C# Emulator / TCP Socket Destination (Optional):**
+- **C# Emulator / TCP Socket Destination (Optional - Top Priority):**
   - Optional field that starts **completely empty by default**. If you are using the developer virtual emulator `ESSIThermalEmulator` or a direct driverless TCP/Ethernet printer, enter the IP:Port here (e.g. `127.0.0.1:9100` or `192.168.1.100:9100`).
+  - **Priority Behavior:** When filled, it activates *Active Emulator Mode*, cleanly disabling physical thermal dropdowns in the Printers tab and routing all thermal traffic to this address. When cleared, regular physical printer routing resumes.
 - **Unassigned Printer Handling:**
-  - If a workstation receives a print job for a format without an assigned printer or network target, the agent rejects the job and explicitly notifies the operator that a printer must be configured in the panel, preventing unexpected silent fallbacks to local ports.
+  - If a workstation receives a print job for a format without an assigned printer or network/emulator target, the agent rejects the job and explicitly notifies the operator that a printer must be configured in the panel, preventing unexpected silent fallbacks to local ports.
 - **Start with Windows:**
   - Checkbox enabling silent background launch upon Windows user login, running minimized in the System Tray next to the clock.
 
