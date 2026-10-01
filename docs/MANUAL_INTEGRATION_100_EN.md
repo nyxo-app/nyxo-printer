@@ -931,7 +931,6 @@ To prevent confusion between physical hardware and testing environments, the age
   - All licenses (including the free Developer tier and commercial subscriptions/lifetime plans) are managed and validated exclusively against the official **Lemon Squeezy** API.
   - Real-time online validation of concurrent terminal seats (`Assigned seats / Total purchased quota`).
   - Displays Hardware Terminal UID, Computer Hostname, Plan Type, and Registered Licensee Email, protected with a cryptographic HMAC hardware signature.
-  - Includes a deactivation button to unbind seats when replacing workstation hardware.
 - **Developer Mode (Developer Free - $0 USD):**
   - Claimable at `https://printer.nyxo.ar`, granting 1 free lifetime license per developer email, issued formally via Lemon Squeezy without requiring credit card details.
 - **Strict Zero-License Lockout Mechanism:**

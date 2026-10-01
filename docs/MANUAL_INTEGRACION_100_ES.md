@@ -948,7 +948,6 @@ Para evitar confusiones entre impresoras físicas reales y el entorno de desarro
   - Todas las licencias (tanto la licencia gratuita de desarrollador como las suscripciones y compras vitalicias) son administradas y validadas contra la API oficial de **Lemon Squeezy**.
   - Validación en línea de cupos de terminales activas (`Terminales utilizadas / Cupo total contratado`).
   - Tarjeta de información en vivo: Identificador de Terminal (Hardware UID), Nombre del Equipo, Cupo de Puestos, Email del Titular y Estado de Activación con firma criptográfica HMAC enlazada al hardware del equipo.
-  - Botón para desvincular la licencia de un puesto físico y transferirla a otro equipo en caso de reemplazo de hardware.
 - **Modalidad Desarrollador (Developer Free - $0 USD):**
   - Disponible en la landing page (`https://printer.nyxo.ar`), otorga 1 licencia gratuita vitalicia por correo electrónico para desarrolladores, emitida formalmente por Lemon Squeezy sin solicitar tarjeta de crédito.
 - **Mecanismo de Bloqueo Estricto por Falta de Licencia:**
