@@ -939,8 +939,6 @@ Cada formato es autónomo y puede combinarse libremente:
   - Botón para desvincular la licencia de un puesto físico y transferirla a otro equipo en caso de reemplazo de hardware.
 - **Modalidad Desarrollador (Developer Free - $0 USD):**
   - Disponible en la landing page (`https://printer.nyxo.ar`), otorga 1 licencia gratuita vitalicia por correo electrónico para desarrolladores, emitida formalmente por Lemon Squeezy sin solicitar tarjeta de crédito.
-- **Localhost Grace:**
-  - Si el servidor configurado en la aplicación apunta estrictamente a un entorno local de desarrollo (`localhost` o `127.0.0.1`), el agente permite la impresión libre para pruebas locales sin requerir activación inmediata.
 - **Período de Gracia Offline de 7 Días:**
   - Si un local comercial pierde el acceso a internet o sufre una caída de telecomunicaciones, el agente activa su **período de gracia offline de 7 días continuos**.
   - Durante este período, valida la firma de activación en la caché local y continúa imprimiendo todos los comprobantes físicos con total normalidad, revalidándose silenciosamente al regresar la conexión.

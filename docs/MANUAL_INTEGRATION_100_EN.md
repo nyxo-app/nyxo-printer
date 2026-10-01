@@ -922,8 +922,6 @@ Every format operates independently and can be freely combined:
   - Includes a deactivation button to unbind seats when replacing workstation hardware.
 - **Developer Mode (Developer Free - $0 USD):**
   - Claimable at `https://printer.nyxo.ar`, granting 1 free lifetime license per developer email, issued formally via Lemon Squeezy without requiring credit card details.
-- **Localhost Grace:**
-  - If the configured backend endpoint strictly points to a local development environment (`localhost` or `127.0.0.1`), the agent allows unlimited local testing without requiring immediate license activation.
 - **7-Day Offline Grace Period:**
   - If a store experiences an extended internet outage or ISP failure, the agent activates its **7-day continuous offline grace period**.
   - Validates cached cryptographic activation signatures locally, allowing retail checkouts and physical receipt printing to proceed uninterrupted until internet connectivity is restored.
