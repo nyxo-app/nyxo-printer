@@ -218,7 +218,7 @@ $pairingString = $node->pairing_string; // Or alias $node->codigo_enlace
 By strict security and multi-tenant isolation design, the official client application is distributed **100% clean and unlinked by default**:
 - **Zero Preloaded URLs or Tokens:** Neither the SaaS server endpoint (`saasUrl`) nor secret terminal tokens (`tenantToken`) come pre-configured. The desktop application starts completely empty, waiting for operator pairing via 1-click token or manual entry.
 - **Zero Preloaded Emulator Parameters (Clean Priority):** The emulator and network printer address fields (`emulatorUrl`) start completely empty. On real production retail workstations with physical USB/Network thermal printers, this field is not used. If an emulator address is configured during development (e.g. `127.0.0.1:9100`), the agent automatically activates **Exclusive Emulator Mode**, cleanly disabling physical thermal printer selectors and routing 100% of thermal receipt jobs to the on-screen emulator. Clearing the field instantly restores physical printers.
-- **Unlicensed Initial State & Zero Backdoors:** The application launches without any pre-loaded license key. All licenses (including the 100% free Developer license and commercial plans) are issued exclusively through **Lemon Squeezy** (`https://printer.nyxo.ar`).
+- **Strict Zero-License Lockout Mode:** The workstation starts without an active license. As long as the terminal lacks an active, verified Lemon Squeezy license key, **all agent operations and navigation tabs are strictly locked** (Status, Connection, Printers, and Settings tabs are disabled with padlock indicators 🔒). The sole permitted action in the entire application is entering and activating a license key in the License tab. Once successfully activated, all views and background polling instantly unlock. All licenses (both the $0 USD Developer Free tier and commercial editions) are issued exclusively via **Lemon Squeezy** (`https://printer.nyxo.ar`).
 
 #### 🛡️ First Launch on Windows 10/11 (SmartScreen Notice)
 When running the installer or portable version for the first time, Windows Defender SmartScreen may display a blue dialog (*"Windows protected your PC"*). This is standard for newly distributed binaries that do not carry costly EV enterprise code-signing certificates:
@@ -934,6 +934,11 @@ To prevent confusion between physical hardware and testing environments, the age
   - Includes a deactivation button to unbind seats when replacing workstation hardware.
 - **Developer Mode (Developer Free - $0 USD):**
   - Claimable at `https://printer.nyxo.ar`, granting 1 free lifetime license per developer email, issued formally via Lemon Squeezy without requiring credit card details.
+- **Strict Zero-License Lockout Mechanism:**
+  - The client agent enforces a zero-trust compliance model: **without an active and verified license key, the operator cannot perform any action within the application except entering and activating their license key**.
+  - All other navigation tabs (`Status`, `Connection`, `Printers`, `Settings`) are visually and functionally locked (dimmed to 35% opacity, disabled cursor, 🔒 lock indicator, and warning tooltips). Clicking on any locked section alerts the user and redirects them immediately to the License tab.
+  - All input fields, select elements, and submit buttons across configuration views are disabled in the DOM (`disabled`), and the background daemon (`server.js`) strictly halts job polling until a valid license signature is confirmed.
+  - Activating a license (including the 100% free Developer Free tier) immediately lifts all locks, restoring full access and unattended printing workflows.
 - **7-Day Offline Grace Period:**
   - If a store experiences an extended internet outage or ISP failure, the agent activates its **7-day continuous offline grace period**.
   - Validates cached cryptographic activation signatures locally, allowing retail checkouts and physical receipt printing to proceed uninterrupted until internet connectivity is restored.
