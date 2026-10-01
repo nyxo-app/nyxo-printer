@@ -29,6 +29,19 @@
   <a href="README.md">English Version 🇬🇧</a>
 </p>
 
+<p align="center">
+  <a href="https://printer.nyxo.ar/docs/MANUAL_INTEGRACION_100_ES.pdf">
+    <img src="https://img.shields.io/badge/Manual_PDF_Oficial-Espa%C3%B1ol_(19_p%C3%A1gs)-6366f1?style=for-the-badge&logo=adobe-acrobat-reader&logoColor=white" alt="Manual PDF Oficial (Español)">
+  </a>
+  <a href="https://printer.nyxo.ar/docs/MANUAL_INTEGRATION_100_EN.pdf">
+    <img src="https://img.shields.io/badge/Official_PDF_Manual-English_(18_pgs)-0284c7?style=for-the-badge&logo=adobe-acrobat-reader&logoColor=white" alt="Official PDF Manual (English)">
+  </a>
+  <a href="docs/MANUAL_INTEGRACION_100_ES.md">
+    <img src="https://img.shields.io/badge/Manual_Completo-Markdown-10b981?style=for-the-badge&logo=markdown&logoColor=white" alt="Manual Completo Markdown">
+  </a>
+</p>
+
+
 ---
 
 ## ⚡ El Dolor Tradicional vs. La Solución Nyxo
@@ -392,7 +405,34 @@ Incluye un modal listo para usar en **Livewire 3 y 4** estilizado con Tailwind C
 </button>
 ```
 
+### 3. Procesar la solicitud de impresión en tu componente Livewire anfitrión:
+
+Cuando el usuario presiona "Imprimir" en el modal, este emite el evento `nyxo-print-requested` con los datos de caja y formato elegidos. Solo debes escuchar dicho evento para renderizar y encolar el trabajo:
+
+```php
+use Livewire\Attributes\On;
+use Nyxo\Printer\Facades\NyxoPrinter;
+use App\Models\Orden;
+
+#[On('nyxo-print-requested')]
+public function procesarImpresion(array $payload): void
+{
+    $orden = Orden::findOrFail($payload['documentId']);
+    $nodoId = $payload['printerNodeId'];
+    $formato = $payload['format']; // 'ticket_80mm', 'ticket_58mm', 'a4'
+
+    NyxoPrinter::to($nodoId)
+        ->width($formato === 'ticket_58mm' ? 58 : 80)
+        ->title(config('app.name'))
+        ->table($orden->detalles->map(fn($i) => ['nombre' => $i->descripcion, 'precio' => $i->subtotal])->toArray())
+        ->total($orden->total)
+        ->cut()
+        ->send();
+}
+```
+
 ---
+
 
 ## 🛡️ Control de Concurrencia y Resiliencia
 

@@ -29,6 +29,19 @@
   <a href="README.es.md">Versión en Español 🇪🇸</a>
 </p>
 
+<p align="center">
+  <a href="https://printer.nyxo.ar/docs/MANUAL_INTEGRATION_100_EN.pdf">
+    <img src="https://img.shields.io/badge/Official_PDF_Manual-English_(18_pgs)-0284c7?style=for-the-badge&logo=adobe-acrobat-reader&logoColor=white" alt="Official PDF Manual (English)">
+  </a>
+  <a href="https://printer.nyxo.ar/docs/MANUAL_INTEGRACION_100_ES.pdf">
+    <img src="https://img.shields.io/badge/Manual_PDF_Oficial-Espa%C3%B1ol_(19_p%C3%A1gs)-6366f1?style=for-the-badge&logo=adobe-acrobat-reader&logoColor=white" alt="Manual PDF Oficial (Español)">
+  </a>
+  <a href="docs/MANUAL_INTEGRATION_100_EN.md">
+    <img src="https://img.shields.io/badge/Full_Manual-Markdown-10b981?style=for-the-badge&logo=markdown&logoColor=white" alt="Full Markdown Manual">
+  </a>
+</p>
+
+
 ---
 
 ## ⚡ The Problem vs. The Nyxo Solution
@@ -392,7 +405,34 @@ Nyxo Universal Printer includes a ready-to-use **Livewire 3 & 4 Modal Component*
 </button>
 ```
 
+### 3. Handle the print request in your host Livewire component:
+
+When the cashier clicks "Print" in the modal, it dispatches the `nyxo-print-requested` event with the user's selected node and format. Simply listen to it to render and queue the job:
+
+```php
+use Livewire\Attributes\On;
+use Nyxo\Printer\Facades\NyxoPrinter;
+use App\Models\Order;
+
+#[On('nyxo-print-requested')]
+public function handlePrintRequest(array $payload): void
+{
+    $order = Order::findOrFail($payload['documentId']);
+    $nodeId = $payload['printerNodeId'];
+    $format = $payload['format']; // 'ticket_80mm', 'ticket_58mm', 'a4'
+
+    NyxoPrinter::to($nodeId)
+        ->width($format === 'ticket_58mm' ? 58 : 80)
+        ->title(config('app.name'))
+        ->table($order->items->map(fn($i) => ['name' => $i->name, 'price' => $i->price])->toArray())
+        ->total($order->total)
+        ->cut()
+        ->send();
+}
+```
+
 ---
+
 
 ## 🛡️ Concurrency & High-Volume Resiliency
 

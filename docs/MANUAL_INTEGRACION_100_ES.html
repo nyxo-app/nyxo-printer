@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Nyxo Universal Printer - Manual Definitivo de Integración y Operación al 100%</title>
+<style>
+  @page {
+    size: A4;
+    margin: 18mm 15mm 20mm 15mm;
+    @bottom-right {
+      content: "Página " counter(page);
+      font-size: 8.5pt;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #64748b;
+    }
+    @bottom-left {
+      content: "Nyxo Universal Printer para Laravel — Manual Oficial";
+      font-size: 8.5pt;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #64748b;
+    }
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 9.5pt;
+    line-height: 1.55;
+    color: #1e293b;
+    background: #ffffff;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Portada */
+  .cover-page {
+    height: 100%;
+    min-height: 250mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    page-break-after: always;
+    padding: 20mm 10mm 15mm 10mm;
+    background: linear-gradient(145deg, #0f172a 0%, #1e1b4b 60%, #31104b 100%);
+    color: #ffffff;
+    border-radius: 12px;
+  }
+
+  .cover-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    background: rgba(99, 102, 241, 0.25);
+    border: 1px solid rgba(129, 140, 248, 0.4);
+    border-radius: 9999px;
+    font-size: 8.5pt;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #a5b4fc;
+    margin-bottom: 25px;
+  }
+
+  .cover-title {
+    font-size: 28pt;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.5px;
+    color: #ffffff;
+    margin: 0 0 12px 0;
+  }
+
+  .cover-title span {
+    color: #818cf8;
+  }
+
+  .cover-subtitle {
+    font-size: 13pt;
+    font-weight: 400;
+    color: #cbd5e1;
+    margin: 0 0 30px 0;
+    line-height: 1.4;
+  }
+
+  .cover-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 25px;
+    padding-top: 25px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .cover-metric-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 12px 16px;
+  }
+
+  .cover-metric-value {
+    font-size: 16pt;
+    font-weight: 700;
+    color: #38bdf8;
+    margin-bottom: 2px;
+  }
+
+  .cover-metric-label {
+    font-size: 8pt;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .cover-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 8.5pt;
+    color: #94a3b8;
+  }
+
+  .cover-footer strong {
+    color: #ffffff;
+  }
+
+  /* Títulos y Secciones */
+  h1 {
+    font-size: 18pt;
+    font-weight: 800;
+    color: #0f172a;
+    border-bottom: 2.5px solid #6366f1;
+    padding-bottom: 6px;
+    margin-top: 28px;
+    margin-bottom: 14px;
+    page-break-after: avoid;
+  }
+
+  h2 {
+    font-size: 13pt;
+    font-weight: 700;
+    color: #1e293b;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    page-break-after: avoid;
+    border-left: 3.5px solid #6366f1;
+    padding-left: 8px;
+  }
+
+  h3 {
+    font-size: 10.5pt;
+    font-weight: 600;
+    color: #334155;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    page-break-after: avoid;
+  }
+
+  p {
+    margin-top: 0;
+    margin-bottom: 9px;
+    text-align: justify;
+  }
+
+  /* Listas */
+  ul, ol {
+    margin-top: 0;
+    margin-bottom: 10px;
+    padding-left: 20px;
+  }
+
+  li {
+    margin-bottom: 4px;
+  }
+
+  /* Tablas */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 16px 0;
+    font-size: 8.5pt;
+    page-break-inside: avoid;
+  }
+
+  th, td {
+    padding: 6px 10px;
+    border: 1px solid #cbd5e1;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    background-color: #f1f5f9;
+    color: #0f172a;
+    font-weight: 700;
+  }
+
+  tr:nth-child(even) td {
+    background-color: #f8fafc;
+  }
+
+  /* Bloques de Código */
+  pre {
+    background-color: #0f172a;
+    color: #f8fafc;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-family: "JetBrains Mono", Consolas, "Courier New", monospace;
+    font-size: 8pt;
+    line-height: 1.45;
+    overflow-x: auto;
+    margin: 10px 0 14px 0;
+    page-break-inside: avoid;
+    border: 1px solid #334155;
+  }
+
+  code {
+    font-family: "JetBrains Mono", Consolas, "Courier New", monospace;
+    font-size: 8.5pt;
+    background-color: #f1f5f9;
+    color: #4338ca;
+    padding: 1.5px 5px;
+    border-radius: 4px;
+  }
+
+  pre code {
+    background-color: transparent;
+    color: inherit;
+    padding: 0;
+    border-radius: 0;
+  }
+
+  /* Cajas de Alerta y Destacados */
+  .callout {
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin: 12px 0;
+    font-size: 8.8pt;
+    page-break-inside: avoid;
+  }
+
+  .callout-info {
+    background-color: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    color: #1e40af;
+  }
+
+  .callout-success {
+    background-color: #f0fdf4;
+    border-left: 4px solid #22c55e;
+    color: #166534;
+  }
+
+  .callout-warning {
+    background-color: #fffbeb;
+    border-left: 4px solid #f59e0b;
+    color: #92400e;
+  }
+
+  .callout-danger {
+    background-color: #fef2f2;
+    border-left: 4px solid #ef4444;
+    color: #991b1b;
+  }
+
+  .callout-title {
+    font-weight: 700;
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ASCII Art Diagram */
+  .ascii-diagram {
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+    color: #1e293b;
+    font-family: "JetBrains Mono", Consolas, monospace;
+    font-size: 7.2pt;
+    line-height: 1.25;
+    padding: 12px;
+    border-radius: 6px;
+    white-space: pre;
+    page-break-inside: avoid;
+    margin: 12px 0;
+  }
+
+  .page-break {
+    page-break-after: always;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 9999px;
+    font-size: 7.5pt;
+    font-weight: 600;
+  }
+  .badge-green { background: #dcfce7; color: #166534; }
+  .badge-blue { background: #dbeafe; color: #1e40af; }
+  .badge-purple { background: #f3e8ff; color: #6b21a8; }
+</style>
+</head>
+<body>
+
+<!-- PORTADA -->
+<div class="cover-page">
+  <div>
+    <div class="cover-badge">Documento de Ingeniería Oficial • Versión 1.0</div>
+    <div class="cover-title">Nyxo Universal <span>Printer</span></div>
+    <div class="cover-subtitle">Manual Definitivo de Arquitectura, Integración y Operación al 100% para Laravel, Livewire y Windows Spooler</div>
+  </div>
+
+  <div>
+    <div class="cover-grid">
+      <div class="cover-metric-card">
+        <div class="cover-metric-value">0.2s</div>
+        <div class="cover-metric-label">Latencia de Impresión Silenciosa</div>
+      </div>
+      <div class="cover-metric-card">
+        <div class="cover-metric-value">0 Popups</div>
+        <div class="cover-metric-label">Cero ventanas Ctrl+P del navegador</div>
+      </div>
+      <div class="cover-metric-card">
+        <div class="cover-metric-value">100% Nativo</div>
+        <div class="cover-metric-label">Cero Dependencias Java / JRE</div>
+      </div>
+      <div class="cover-metric-card">
+        <div class="cover-metric-value">A4 & ESC/POS</div>
+        <div class="cover-metric-label">PDF Vectorial + Térmica 80mm/58mm</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cover-footer">
+    <div><strong>Autor:</strong> Equipo de Desarrollo de Nyxo</div>
+    <div><strong>Compatibilidad:</strong> PHP 8.2+ • Laravel 10 / 11 / 12 / 13 • Livewire 3 / 4</div>
+    <div><strong>Fecha de Emisión:</strong> Septiembre 2026</div>
+  </div>
+</div>
+
+<!-- MÓDULO 1 -->
+<h1>1. Ficha Técnica y Propuesta de Valor</h1>
+<p>La impresión física desatendida desde aplicaciones web en la nube se ha enfrentado históricamente a tres grandes obstáculos técnicos impuestos por la arquitectura de los navegadores y los sistemas operativos:</p>
+
+<ul>
+  <li><strong>Interrupción del Cajero (<code>window.print()</code>):</strong> Bloquea el hilo de JavaScript, abre un cuadro modal que obliga a pulsar la tecla <em>Enter</em> y descalibra los anchos de los tickets térmicos.</li>
+  <li><strong>Bloqueo de Contenido Mixto (SSL):</strong> Una aplicación web segura servida por <code>https://</code> no puede realizar llamadas HTTP a direcciones locales como <code>http://localhost</code> o <code>http://192.168.1.x</code>.</li>
+  <li><strong>Carga Operativa de Java (QZ Tray):</strong> Exige instalar máquinas virtuales de Java en cada terminal de venta y gestionar certificados SSL autofirmados con fechas de caducidad.</li>
+  <li><strong>Altos Costos de Suscripción (PrintNode):</strong> Tarifas mensuales recurrentes en dólares por cada impresora o equipo físico conectado.</li>
+</ul>
+
+<p><strong>Nyxo Universal Printer</strong> rompe con este paradigma combinando un paquete nativo de Laravel y un agente liviano de Windows basado en llamadas nativas al Spooler del sistema operativo (<code>winspool.drv</code>) y SumatraPDF:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Factor Operativo</th>
+      <th>Solución Tradicional (Navegador / QZ)</th>
+      <th>Solución Nyxo Universal Printer</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Velocidad de Salida</strong></td>
+      <td>3 a 8 segundos con intervención humana obligatoria</td>
+      <td><span class="badge badge-green">0.2 segundos</span> directo a la bandeja física</td>
+    </tr>
+    <tr>
+      <td><strong>Ventana Emergente</strong></td>
+      <td>Obligatoria (<code>Ctrl+P</code>) en cada documento</td>
+      <td><span class="badge badge-green">Cero diálogos</span> (100% silencioso y en segundo plano)</td>
+    </tr>
+    <tr>
+      <td><strong>Certificados SSL Locales</strong></td>
+      <td>Requeridos en cada puesto para eludir bloqueo HTTPS</td>
+      <td><span class="badge badge-green">No requeridos</span> (comunicación saliente por puerto 443)</td>
+    </tr>
+    <tr>
+      <td><strong>Entorno de Ejecución</strong></td>
+      <td>Java JRE pesado o WebSockets locales expuestos</td>
+      <td><span class="badge badge-purple">Binario C / Win32 Spooler</span> nativo ultra-optimizado</td>
+    </tr>
+    <tr>
+      <td><strong>Pruebas en Desarrollo</strong></td>
+      <td>Desperdicio continuo de rollos térmicos en escritorio</td>
+      <td><span class="badge badge-blue">Emulador en pantalla</span> y visor HTML interactivo</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- MÓDULO 2 -->
+<h1>2. Arquitectura del Sistema y Ciclo de Vida de los Datos</h1>
+<p>El ecosistema opera mediante una <strong>cola atómica con bloqueo pesimista en base de datos</strong> y un protocolo de <strong>sondeo seguro saliente (Outbound Long-Polling)</strong>:</p>
+
+<div class="ascii-diagram">
+┌────────────────────────────────────────────────────────────────────────┐
+│                   APLICACIÓN WEB LARAVEL (Cloud / VPS)                 │
+│                                                                        │
+│   NyxoPrinter::to($nodeId)                                             │
+│       ->title('MI COMERCIO')                                           │
+│       ->table($items)                                                  │
+│       ->total($monto)                                                  │
+│       ->cut()                                                          │
+│       ->send();                                                        │
+│                                                                        │
+│   1. Convierte a flujo binario ESC/POS o Base64 (PDF / RAW / JSON)     │
+│   2. Guarda registro atómico en tabla `print_jobs` en estado 'pending' │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ Polling HTTPS Saliente (Puerto 443 estándar)
+                                    │ Header: Authorization: Bearer &lt;token&gt;
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│            AGENTE DE ESCRITORIO NYXO (PC Cliente / Punto de Venta)     │
+│                                                                        │
+│   - Emite latido cada 5 segundos (GET /api/v1/print/ping)              │
+│   - Retira trabajos pendientes con bloqueo transaccional (GET /jobs)   │
+│   - Reporta confirmación física de impresión (POST /status)            │
+└───────────────────┬───────────────────────────────┬────────────────────┘
+                    │ winspool.drv (RAW)            │ SumatraPDF (Silent CLI)
+                    ▼                               ▼
+    ┌───────────────────────────────┐   ┌───────────────────────────────┐
+    │  IMPRESORA TÉRMICA DE TICKETS │   │  IMPRESORA CONVENCIONAL A4    │
+    │  (ESC/POS 80mm / 58mm)        │   │  (Láser / Tinta de Oficina)   │
+    │  • Comandas, Tickets, Facturas│   │  • Facturas A4, Remitos       │
+    │  • Guillotina y apertura RJ11 │   │  • Hojas membretadas, PDF     │
+    └───────────────────────────────┘   └───────────────────────────────┘
+</div>
+
+<h3>Ciclo de Estados de un Trabajo de Impresión (`PrintJob`)</h3>
+<ol>
+  <li><strong><code>pending</code>:</strong> El trabajo se genera y persiste en Laravel. Listo para ser despachado.</li>
+  <li><strong><code>processing</code>:</strong> El agente local consulta <code>GET /jobs</code>. La base de datos aplica <code>lockForUpdate()</code> e incrementa atómicamente el contador de intentos (<code>attempts</code>).</li>
+  <li><strong><code>printed</code>:</strong> La impresora física confirma la inyección en el spooler. El agente envía <code>POST /jobs/{id}/status</code> con <code>status: 'printed'</code>.</li>
+  <li><strong><code>failed</code>:</strong> Si ocurre atasco de papel o desconexión física, el agente reporta <code>status: 'failed'</code> con el detalle de error en <code>error_message</code>.</li>
+</ol>
+
+<div class="page-break"></div>
+
+<!-- MÓDULO 3 -->
+<h1>3. Instalación y Configuración Paso a Paso</h1>
+
+<h3>3.1 Requisitos del Servidor</h3>
+<ul>
+  <li>PHP 8.2 o superior (probado en PHP 8.2, 8.3 y 8.4).</li>
+  <li>Extensiones PHP requeridas: <code>ext-iconv</code> (para transliteración de caracteres a CP850), <code>ext-json</code>, <code>ext-mbstring</code>.</li>
+  <li>Laravel 10.x, 11.x, 12.x o 13.x.</li>
+</ul>
+
+<h3>3.2 Instalación vía Composer</h3>
+<pre><code>composer require nyxo-app/nyxo-printer</code></pre>
+
+<h3>3.3 Instalador Automatizado</h3>
+<pre><code>php artisan nyxo-printer:install</code></pre>
+<p>Este comando interactivo realiza las siguientes acciones:</p>
+<ol>
+  <li>Publica el archivo de configuración <code>config/nyxo-printer.php</code>.</li>
+  <li>Publica las migraciones en <code>database/migrations/</code>.</li>
+  <li>Publica las vistas Blade y el componente Livewire en <code>resources/views/vendor/nyxo-printer/</code>.</li>
+  <li>Verifica y copia el instalador del agente de Windows (<code>Nyxo_Universal_Printer_Setup_Win.exe</code>) a la carpeta pública <code>public/downloads/</code> para permitir auto-hospedaje inmediato.</li>
+  <li>Ofrece ejecutar automáticamente <code>php artisan migrate</code>.</li>
+</ol>
+
+<h3>3.4 Desglose de Parámetros de Configuración (`config/nyxo-printer.php`)</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Directiva</th>
+      <th>Valor por Defecto</th>
+      <th>Descripción Funcional</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>route_prefix</code></td>
+      <td><code>'api/v1/print'</code></td>
+      <td>Prefijo URL de las rutas REST consultadas por el agente de escritorio.</td>
+    </tr>
+    <tr>
+      <td><code>middleware</code></td>
+      <td><code>['api']</code></td>
+      <td>Pila de middleware aplicada a las rutas de impresión.</td>
+    </tr>
+    <tr>
+      <td><code>download_route</code></td>
+      <td><code>'downloads/Nyxo_Universal_...'</code></td>
+      <td>Ruta web pública para que los clientes descarguen el agente de escritorio.</td>
+    </tr>
+    <tr>
+      <td><code>tenant_column</code></td>
+      <td><code>'empresa_id'</code></td>
+      <td>Columna foránea para SaaS multi-empresa (establecer en <code>null</code> en monolitos simples).</td>
+    </tr>
+    <tr>
+      <td><code>timeout_minutes</code></td>
+      <td><code>3</code></td>
+      <td>Minutos tras los cuales un trabajo en <code>processing</code> se considera huérfano y se reencola.</td>
+    </tr>
+    <tr>
+      <td><code>max_attempts</code></td>
+      <td><code>3</code></td>
+      <td>Cantidad máxima de reintentos automáticos antes de declarar el trabajo como <code>failed</code>.</td>
+    </tr>
+    <tr>
+      <td><code>prune_after_days</code></td>
+      <td><code>7</code></td>
+      <td>Días de retención para la purga periódica con <code>php artisan nyxo-printer:clean</code>.</td>
+    </tr>
+    <tr>
+      <td><code>default_width</code></td>
+      <td><code>80</code></td>
+      <td>Ancho de papel térmico predeterminado en milímetros (80 o 58).</td>
+    </tr>
+    <tr>
+      <td><code>codepage</code></td>
+      <td><code>'CP850'</code></td>
+      <td>Tabla de codificación para la transliteración automática de acentos y caracteres latinos.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- MÓDULO 4 -->
+<h1>4. Gestión de Nodos de Impresión y Vinculación en 1 Clic</h1>
+<p>Cada computadora física donde se conecta una o más impresoras se modela como un registro <code>PrinterNode</code> en Laravel:</p>
+
+<pre><code>use Nyxo\Printer\Models\PrinterNode;
+
+// 1. Creación del nodo en base de datos:
+$nodo = PrinterNode::create([
+    'name' => 'Caja 1 - Mostrador Principal',
+    'is_active' => true,
+    // 'empresa_id' => $empresa->id, // Opcional en SaaS
+]);
+
+// 2. Token Criptográfico de 60 caracteres (autogenerado):
+$token = $nodo->print_token;
+// Resultado: "8fK9xT2yR8qW1yT5mN4zB6cA0dF3gH7jK2lM5nP8rS1tV4wY7bC0eG3hJ6kL"
+
+// 3. Código de Enlace Rápido en 1 Clic (URL + Token en Base64):
+$codigoEnlace = $nodo->codigo_enlace; // O alias $nodo->pairing_string
+// Resultado decodificado: "https://mi-pos.com/api/v1/print|8fK9xT2yR8..."</code></pre>
+
+<h3>Configuración en el Agente de Escritorio Windows</h3>
+
+<div class="callout callout-info">
+  <div class="callout-title">🔒 Estado Inicial Limpio de Fábrica (Seguridad y Privacidad)</div>
+  Por diseño de seguridad estricto y privacidad multi-inquilino, el agente de escritorio de Nyxo se distribuye <strong>100% limpio y desvinculado por defecto</strong>:
+  <ul>
+    <li><strong>Sin URLs ni Tokens Precargados:</strong> Ni la dirección del servidor (<code>saasUrl</code>) ni las credenciales secretas del puesto (<code>tenantToken</code>) vienen predefinidas. La aplicación inicia vacía esperando la vinculación del operador.</li>
+    <li><strong>Sin Parámetros de Emulador por Defecto:</strong> Los campos de destino del emulador C# o impresora de red (<code>emulatorUrl</code>) inician vacíos. En cajas y puntos de venta comerciales con ticketeras físicas conectadas por USB/Red, este campo no se utiliza.</li>
+    <li><strong>Sin Licencias ni Puertas Traseras Precargadas:</strong> La terminal inicia sin licencia activa. Todas las licencias (tanto la modalidad gratuita para desarrolladores como los planes comerciales) se emiten exclusivamente a través de <strong>Lemon Squeezy</strong> (<code>https://printer.nyxo.ar</code>).</li>
+  </ul>
+</div>
+
+<div class="callout callout-warning">
+  <div class="callout-title">🛡️ Primer Inicio en Windows 10/11 (Aviso de SmartScreen)</div>
+  Al ejecutar el instalador o la versión portable por primera vez, es normal que Microsoft Defender SmartScreen muestre una ventana azul informativa (<em>"Windows protegió su PC"</em>), al tratarse de un ejecutable recién distribuido sin un certificado de firma EV corporativo:
+  <p>Para continuar: Hacer clic en el enlace <strong>"Más información"</strong> y presionar el botón <strong>"Ejecutar de todas formas"</strong>.</p>
+</div>
+
+<div class="callout callout-info">
+  <div class="callout-title">🔄 Demonio en Segundo Plano y Bandeja del Sistema (System Tray)</div>
+  El agente opera como un <strong>servicio desatendido en segundo plano</strong>:
+  <ul>
+    <li><strong>Al presionar la "X" de la ventana:</strong> El programa <strong>no se cierra</strong>; se minimiza a la Bandeja del Sistema (<em>System Tray</em>) junto al reloj de Windows para evitar que un cajero cierre la aplicación por error e interrumpa la impresión.</li>
+    <li><strong>Para restaurar la ventana:</strong> Hacer doble clic en el ícono de la impresora junto al reloj de Windows, o simplemente volver a ejecutar el archivo <code>.exe</code> (el mecanismo <em>Single Instance Lock</em> detectará la instancia en segundo plano y traerá la ventana al frente de inmediato).</li>
+    <li><strong>Para cerrar definitivamente la aplicación:</strong> Hacer clic derecho sobre el ícono de la bandeja del sistema y seleccionar <strong>"Salir"</strong>.</li>
+  </ul>
+</div>
+
+<h4>⚙️ Proceso de Vinculación Paso a Paso:</h4>
+<ol>
+  <li>Ejecutar <code>Nyxo_Universal_Printer.exe</code> en la PC del puesto.</li>
+  <li>Abrir la pestaña <strong>🔑 Conexión</strong>.</li>
+  <li><strong>Vinculación en 1 Clic (Recomendado):</strong> Pegar el valor de <code>$nodo->codigo_enlace</code> en el campo <em>"⚡ Código de Enlace Rápido"</em> y hacer clic en <strong>Pegar</strong> y <strong>Guardar</strong>. El agente desglosa la URL del servidor y el token al instante.</li>
+  <li><strong>Método Manual:</strong> Introducir la URL del endpoint (ej. <code>https://mi-sistema.com/api/v1/print</code>) y el <code>$nodo->print_token</code>.</li>
+  <li>En la pestaña <strong>🖨️ Impresoras</strong>, seleccionar la impresora física asignada para cada formato (<em>Ticket 80mm</em>, <em>Ticket 58mm</em> o <em>A4</em>).</li>
+  <li>En la pestaña <strong>🛡️ Licencia</strong>, ingresar la clave oficial emitida por <strong>Lemon Squeezy</strong> (variante Developer Free de $0 USD o variantes comerciales) y presionar <strong>Activar Licencia</strong>.</li>
+</ol>
+
+<h3>Monitoreo en Tiempo Real (Heartbeat)</h3>
+<p>El agente envía un ping automático cada 5 segundos a <code>GET /api/v1/print/ping</code>. Laravel actualiza el campo <code>last_ping_at</code> usando <code>updateQuietly()</code> para no disparar eventos pesados de Eloquent.</p>
+
+<pre><code>// Verificar si la terminal física está encendida y conectada:
+if ($nodo->is_online) {
+    // 🟢 Online: El agente reportó actividad en los últimos 2 minutos
+} else {
+    // 🔴 Offline: PC apagada, agente cerrado o sin conexión a internet
+}</code></pre>
+
+<div class="page-break"></div>
+
+<!-- MÓDULO 5 -->
+<h1>5. Especificación Completa de la API REST Interna</h1>
+<p>Todas las rutas son gestionadas por el controlador <code>PrintJobApiController</code> y blindadas por el middleware <code>CheckPrintToken</code>:</p>
+
+<h3>Extracción Multicanal del Token en el Middleware</h3>
+<p>Para evitar fallas habituales causadas por servidores Apache o proxys que eliminan encabezados estándar, el middleware inspecciona en cascada:</p>
+<ol>
+  <li>Cabeceras <code>X-Tenant-Token</code>, <code>X-Print-Token</code>, <code>Print-Token</code>, <code>Token</code>.</li>
+  <li>Cabecera estándar <code>Authorization: Bearer &lt;token&gt;</code>.</li>
+  <li>Parámetros de consulta o cuerpo <code>?token=</code> o <code>?print_token=</code>.</li>
+  <li>Variables de entorno de servidor <code>HTTP_AUTHORIZATION</code> y <code>REDIRECT_HTTP_AUTHORIZATION</code>.</li>
+</ol>
+
+<div class="callout callout-info">
+  <div class="callout-title">💡 Auto-Decodificación Inteligente de Enlace Rápido</div>
+  Si un operador pega el Código de Enlace Base64 completo en el campo de Token, el middleware detecta el separador <code>|</code>, lo decodifica y extrae automáticamente el token real sin arrojar un error 401.
+</div>
+
+<h3>Endpoints de la API</h3>
+
+<h4>1. Verificación de Conexión (`GET /api/v1/print/ping`)</h4>
+<pre><code>// Petición: GET /api/v1/print/ping (Header: Authorization: Bearer &lt;token&gt;)
+// Respuesta 200 OK:
+{
+  "success": true,
+  "message": "Pong",
+  "node": { "id": 1, "name": "Caja Principal", "tenant_id": 1 },
+  "tenant": { "id": 1, "nombre": "Caja Principal" },
+  "punto_venta": { "id": 1, "nombre": "Caja Principal", "numero": 1 },
+  "timestamp": "2026-09-21T10:30:00-03:00"
+}</code></pre>
+
+<h4>2. Extracción Atómica de Trabajos (`GET /api/v1/print/jobs`)</h4>
+<pre><code>// Petición: GET /api/v1/print/jobs (Header: Authorization: Bearer &lt;token&gt;)
+// Respuesta 200 OK (Bloquea con lockForUpdate y transiciona a 'processing'):
+{
+  "success": true,
+  "count": 1,
+  "jobs": [
+    {
+      "id": 104,
+      "format": "ticket_80mm",
+      "content_type": "escpos_base64",
+      "content": "G0BAIBs2Nz...",
+      "attempts": 1,
+      "created_at": "2026-09-21T10:30:01-03:00"
+    }
+  ]
+}</code></pre>
+
+<h4>3. Confirmación de Impresión (`POST /api/v1/print/jobs/{id}/status`)</h4>
+<pre><code>// Petición: POST /api/v1/print/jobs/104/status
+// Body JSON:
+{
+  "status": "printed",
+  "error_message": null
+}
+
+// Respuesta 200 OK (Dispara el evento PrintJobPrinted):
+{
+  "success": true,
+  "message": "Print job status updated successfully.",
+  "job_id": 104,
+  "new_status": "printed"
+}</code></pre>
+
+<!-- MÓDULO 6 -->
+<h1>6. Fluent Builder y Métodos de Encolado al 100% (`NyxoPrinter`)</h1>
+<p>El Facade <code>NyxoPrinter</code> ofrece una interfaz fluida, encadenable y completamente tipada que cubre el 100% de las necesidades de impresión comercial:</p>
+
+<h3>6.1 Tickets Térmicos ESC/POS (`ThermalBuilder`)</h3>
+<pre><code>use Nyxo\Printer\Facades\NyxoPrinter;
+
+NyxoPrinter::to($nodoId)
+    ->width(80) // 80mm (42 columnas) o 58mm (32 columnas)
+    ->copies(1)
+    
+    // Encabezados
+    ->title('CAFE & BISTRO NYXO', doubleWidth: true, doubleHeight: true)
+    ->center('CUIT: 30-71829384-9 | IVA Resp. Inscripto')
+    ->center('Av. Corrientes 1234, CABA')
+    ->line('-') // Línea separadora adaptada automáticamente al ancho
+    
+    // Datos del Documento
+    ->text('Factura B: 0001-00004921', bold: true)
+    ->text('Fecha: ' . now()->format('d/m/Y H:i') . ' | Cajero: Juan')
+    ->doubleLine('=') // Línea doble (====================)
+    
+    // Tabla con auto-alineación de ítems y precios
+    ->table([
+        ['nombre' => 'Café Espresso Doble', 'cantidad' => 2, 'precio' => 7000],
+        ['nombre' => 'Tostado Jamón y Queso Especial', 'cantidad' => 1, 'precio' => 4500],
+        ['nombre' => 'Agua Mineral 500ml', 'cantidad' => 1, 'precio' => 2000],
+    ], headerLeft: 'DESCRIPCION', headerRight: 'TOTAL')
+    ->line('-')
+    
+    // Totales y Descuentos
+    ->text('Subtotal: $13,500.00', align: 'right')
+    ->text('Descuento Socio (10%): -$1,350.00', align: 'right')
+    ->total(12150.00, label: 'TOTAL A PAGAR:', currency: '$')
+    ->feed(1)
+    
+    // Códigos Fiscales y de Barras
+    ->qr('https://www.afip.gob.ar/fe/qr/?p=12345', size: 6)
+    ->barcode('000100004921', type: 'CODE39')
+    
+    // Pie de Ticket
+    ->center('¡Muchas gracias por su compra!')
+    ->center('Conserve este comprobante para cambios')
+    
+    // Acciones Electromecánicas sobre Hardware
+    ->openDrawer(pin: 0) // Pulso eléctrico al cajón portamonedas RJ11
+    ->beep(times: 2)     // Alarma acústica (zumbador) en comandera
+    ->cut(full: false)   // Corte parcial de guillotina (true = full)
+    ->send();</code></pre>
+
+<div class="page-break"></div>
+
+<h3>6.2 Modificadores Avanzados en `ThermalBuilder`</h3>
+<pre><code>// Línea de texto con estilo personalizado directo:
+$ticket->text(
+    text: 'AVISO IMPORTANTE',
+    align: 'center',     // 'left' | 'center' | 'right'
+    bold: true,          // Negrita (Emphasized)
+    underline: true,     // Subrayado por hardware
+    doubleHeight: false, // 2x Alto
+    doubleWidth: false   // 2x Ancho
+);</code></pre>
+
+<h3>6.3 Inyección Directa ESC/POS con `custom(callable)`</h3>
+<p>Si se requiere enviar secuencias de escape no previstas por los helpers estándar:</p>
+<pre><code>use Mike42\Escpos\Printer;
+
+NyxoPrinter::to($nodoId)
+    ->title('LOGÍSTICA')
+    ->custom(function (Printer $printer) {
+        $printer->setLineSpacing(30);
+        $printer->getPrintConnector()->write("\x1B\x21\x30"); // Inyección cruda
+    })
+    ->cut()
+    ->send();</code></pre>
+
+<div class="callout callout-danger">
+  <div class="callout-title">⚠️ Regla Crítica en PHP 8.x con Mike42/Escpos</div>
+  Al invocar <code>$printer->close()</code>, el conector vacía su buffer a <code>null</code>. Extraer los datos del conector después arroja un error fatal <code>implode(): Argument #1 must be of type array|string, null given</code>. En Nyxo Universal Printer esta extracción se realiza siempre antes del cierre dentro de <code>ThermalBuilder::toBase64()</code>.
+</div>
+
+<h3>6.4 Impresión Silenciosa de Facturas y Remitos A4 (PDF)</h3>
+<pre><code>// Opción 1: Desde un archivo PDF existente en disco:
+NyxoPrinter::to($nodoId)
+    ->copies(2)
+    ->pdfFile(storage_path('app/facturas/factura_4921.pdf'))
+    ->send();
+
+// Opción 2: Desde una cadena Base64 en memoria (DomPDF, Snappy, Spatie Browsershot):
+$pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('facturas.a4', ['orden' => $orden]);
+$base64 = base64_encode($pdf->output());
+
+NyxoPrinter::to($nodoId)
+    ->copies(1)
+    ->pdf($base64, format: 'a4')
+    ->send();</code></pre>
+
+<h3>6.5 Impresoras Matriciales y Payloads JSON</h3>
+<pre><code>// Impresoras de impacto / matriciales (texto plano ASCII con avance de hoja \x0C):
+NyxoPrinter::to($nodoId)
+    ->raw("REMITO MATRICIAL\nFECHA: 21/09/2026\n\n\x0C")
+    ->send();
+
+// Cargas útiles estructuradas en JSON (para hardware IoT o integraciones a medida):
+NyxoPrinter::to($nodoId)
+    ->json(['accion' => 'etiqueta_bulto', 'bultos' => 3])
+    ->send();</code></pre>
+
+<h3>6.6 Atajos Directos del Facade `NyxoPrinter`</h3>
+<pre><code>// Atajos de conveniencia sin encadenar constructores:
+NyxoPrinter::pdf($nodoId, $pdfBase64, format: 'a4', copies: 1);
+NyxoPrinter::thermal($nodoId, $escposBase64, format: 'ticket_80mm', copies: 1);
+NyxoPrinter::raw($nodoId, "TEXTO CRUDO", format: 'raw', copies: 1);
+NyxoPrinter::template($nodoId, $plantilla, copies: 1);
+
+$nodo = NyxoPrinter::node($nodoId);
+$enlace = NyxoPrinter::getPairingString($nodo);</code></pre>
+
+<!-- MÓDULO 7 -->
+<h1>7. Desarrollo y Pruebas Sin Gastar Papel (Paperless Dev)</h1>
+
+<h3>7.1 Previsualizador HTML en Pantalla</h3>
+<p>Permite renderizar un ticket térmico fotorrealista directamente en el navegador web para calibrar el diseño sin gastar papel físico:</p>
+
+<pre><code>use Nyxo\Printer\Facades\NyxoPrinter;
+
+Route::get('/dev/ticket-preview', function () {
+    return NyxoPrinter::preview(function ($ticket) {
+        $ticket->width(80)
+            ->title('VISTA PREVIA EN PANTALLA')
+            ->center('Comercio de Pruebas')
+            ->line('-')
+            ->table([
+                ['nombre' => 'Hamburguesa Especial', 'cantidad' => 2, 'precio' => 12000],
+                ['nombre' => 'Papas Rústicas', 'cantidad' => 1, 'precio' => 4500],
+            ])
+            ->line('-')
+            ->total(16500.00)
+            ->qr('https://printer.nyxo.ar')
+            ->cut();
+    }, width: 80);
+});</code></pre>
+
+<h3>7.2 Emulador de Hardware C# (ESSI Thermal Emulator)</h3>
+<p>El <strong>ESSI Thermal Emulator</strong> es una herramienta auxiliar de simulación visual autónoma para desarrolladores, diseñada para diseñar plantillas y probar sin gastar rollos de papel térmico.</p>
+<ul>
+  <li><strong>Herramienta Opcional de Pruebas:</strong> En cajas de cobro y puntos de venta reales con impresoras físicas USB, el emulador <strong>NO se instala ni se utiliza</strong>. El agente viene de fábrica con los campos de emulador completamente vacíos.</li>
+  <li><strong>Configuración Solo para Testing Local:</strong>
+    <ol>
+      <li>Ejecutar el <strong>ESSI Thermal Emulator</strong> (<code>ESSIThermalEmulator.exe</code>), el cual abre un socket de escucha en el puerto TCP/HTTP <code>9100</code>.</li>
+      <li>En el Agente Nyxo, para conectar al emulador durante el desarrollo, ir a la pestaña <strong>🖨️ Impresoras</strong>, seleccionar <strong>"🌐 Otra IP:Puerto de Red (TCP)..."</strong> (o en la pestaña <strong>⚙️ Ajustes</strong>) e ingresar <code>127.0.0.1:9100</code>.</li>
+      <li>Al enviar trabajos desde Laravel, el emulador dibujará el ticket en pantalla con animación de salida de papel continuo, conmutador de ancho 80mm/58mm y opción de exportación nativa a PDF.</li>
+    </ol>
+  </li>
+</ul>
+
+<div class="page-break"></div>
+
+<!-- MÓDULO 8 -->
+<h1>8. Sistema de Plantillas Reutilizables (Nativas y Personalizadas)</h1>
+
+<h3>8.1 Plantilla Nativa 1: `ReceiptTemplate` (Tickets Comerciales)</h3>
+<p>Ubicada en <code>Nyxo\Printer\Templates\ReceiptTemplate</code>, viene precompilada en el paquete:</p>
+<pre><code>use Nyxo\Printer\Facades\NyxoPrinter;
+use Nyxo\Printer\Templates\ReceiptTemplate;
+
+$datos = [
+    'company' => 'TIENDA CENTRAL S.A.',
+    'title' => 'TICKET DE COMPRA',
+    'metadata' => [
+        'Caja' => '01',
+        'Cajero' => 'Martín P.',
+        'Fecha' => now()->format('d/m/Y H:i'),
+    ],
+    'items' => [
+        ['name' => 'Café en Grano 250g', 'qty' => 1, 'price' => 8500],
+        ['name' => 'Filtros de Papel x40', 'qty' => 2, 'price' => 3200],
+    ],
+    'total' => 14900.00,
+    'qr' => 'https://afip.gob.ar/14900',
+    'barcode' => '779123456789',
+    'footer' => '¡Gracias por su visita!',
+    'open_drawer' => true,
+    'cut' => true,
+];
+
+NyxoPrinter::to($nodoId)->template(new ReceiptTemplate($datos))->send();</code></pre>
+
+<h3>8.2 Plantilla Nativa 2: `OrderSummaryTemplate` (Taller y Servicios)</h3>
+<p>Ubicada en <code>Nyxo\Printer\Templates\OrderSummaryTemplate</code>:</p>
+<pre><code>use Nyxo\Printer\Facades\NyxoPrinter;
+use Nyxo\Printer\Templates\OrderSummaryTemplate;
+
+$servicio = [
+    'empresa' => 'SERVICIO TÉCNICO OFICIAL',
+    'order_number' => '5821',
+    'fecha' => now()->format('d/m/Y H:i'),
+    'cliente' => 'Roberto Sánchez',
+    'telefono' => '+54 9 11 4444-1234',
+    'equipo' => 'MacBook Pro 14" M1',
+    'problema' => 'Falla en conector MagSafe',
+    'reparaciones' => [
+        ['nombre' => 'Reemplazo Módulo DC-In', 'precio' => 42000],
+        ['nombre' => 'Mantenimiento Preventivo', 'precio' => 15000],
+    ],
+    'total' => 57000.00,
+    'barcode' => 'ORD-5821',
+    'terminos' => 'Garantía legal de 90 días sobre repuestos originales.',
+];
+
+NyxoPrinter::to($nodoId)->template(new OrderSummaryTemplate($servicio))->send();</code></pre>
+
+<h3>8.3 Creación de Plantillas Propias con `PrintTemplateInterface`</h3>
+<pre><code>namespace App\PrintTemplates;
+
+use Nyxo\Printer\Contracts\PrintTemplateInterface;
+use Nyxo\Printer\Builders\ThermalBuilder;
+
+class ComandaCocinaTemplate implements PrintTemplateInterface
+{
+    public function __construct(protected array $comanda) {}
+
+    public function build(ThermalBuilder $ticket): void
+    {
+        $ticket->center('*** COCINA ***', bold: true, doubleHeight: true)
+            ->text('MESA #' . $this->comanda['mesa'] . ' | Mozo: ' . $this->comanda['mozo'])
+            ->doubleLine('=');
+
+        foreach ($this->comanda['platos'] as $p) {
+            $ticket->text($p['cantidad'] . 'x ' . $p['nombre'], bold: true, doubleWidth: true);
+            if (!empty($p['observaciones'])) {
+                $ticket->text('   * ' . $p['observaciones']);
+            }
+        }
+
+        $ticket->line('-')->beep(times: 2)->feed(2)->cut();
+    }
+}</code></pre>
+
+<!-- MÓDULO 9 -->
+<h1>9. Integración Frontend con Livewire 3 & 4 (El Ciclo Completo)</h1>
+<p>El paquete incluye el componente <code>NyxoPrinterModal</code> estilizado en Tailwind CSS para permitir a los usuarios seleccionar la terminal de destino y el formato en un modal emergente.</p>
+
+<h3>9.1 Paso 1: Inclusión en el Layout Base</h3>
+<pre><code>{{-- resources/views/layouts/app.blade.php --}}
+&lt;body&gt;
+    {{ $slot }}
+
+    &lt;livewire:nyxo-printer-modal /&gt;
+&lt;/body&gt;</code></pre>
+
+<h3>9.2 Paso 2: Botón de Apertura en Cualquier Vista</h3>
+<pre><code>&lt;button wire:click="$dispatch('open-print-modal', {
+    documentId: {{ $orden->id }},
+    documentType: 'orden_servicio',
+    format: 'ticket_80mm'
+})" class="bg-indigo-600 text-white px-4 py-2 rounded-lg"&gt;
+    🖨️ Imprimir Comprobante
+&lt;/button&gt;</code></pre>
+
+<div class="page-break"></div>
+
+<h3>9.3 Paso 3: El Listener en el Componente Anfitrión (La Solución Completa)</h3>
+<p>Al pulsar "Imprimir", el modal dispara el evento <code>nyxo-print-requested</code> con los datos seleccionados por el usuario. El componente anfitrión debe escuchar este evento para armar el documento y encolarlo:</p>
+
+<pre><code>namespace App\Livewire;
+
+use Livewire\Component;
+use Livewire\Attributes\On;
+use App\Models\Orden;
+use Nyxo\Printer\Facades\NyxoPrinter;
+use Nyxo\Printer\Templates\OrderSummaryTemplate;
+
+class AdministrarOrdenes extends Component
+{
+    /**
+     * Escucha la solicitud de impresión disparada desde el modal de Nyxo
+     */
+    #[On('nyxo-print-requested')]
+    public function ejecutarImpresion(array $payload): void
+    {
+        $documentId = $payload['documentId'];
+        $format = $payload['format']; // 'ticket_80mm', 'ticket_58mm', 'a4'
+        $printerNodeId = $payload['printerNodeId'];
+        $copies = $payload['copies'] ?? 1;
+
+        $orden = Orden::with('detalles')->findOrFail($documentId);
+
+        if ($format === 'ticket_80mm' || $format === 'ticket_58mm') {
+            NyxoPrinter::to($printerNodeId)
+                ->width($format === 'ticket_58mm' ? 58 : 80)
+                ->copies($copies)
+                ->template(new OrderSummaryTemplate([
+                    'empresa' => config('app.name'),
+                    'order_number' => $orden->id,
+                    'fecha' => $orden->created_at->format('d/m/Y H:i'),
+                    'cliente' => $orden->cliente_nombre,
+                    'telefono' => $orden->cliente_telefono,
+                    'equipo' => $orden->equipo,
+                    'problema' => $orden->falla,
+                    'reparaciones' => $orden->detalles->map(fn($d) => [
+                        'nombre' => $d->descripcion,
+                        'precio' => $d->precio,
+                    ])->toArray(),
+                    'total' => $orden->total,
+                ]))
+                ->send();
+        } else {
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.orden_a4', ['orden' => $orden]);
+            NyxoPrinter::to($printerNodeId)
+                ->copies($copies)
+                ->pdf(base64_encode($pdf->output()), format: 'a4')
+                ->send();
+        }
+    }
+}</code></pre>
+
+<!-- MÓDULO 10 -->
+<div class="page-break"></div>
+<h1>10. Guía Oficial de Operación, Configuración y Despliegue del Agente de Escritorio</h1>
+<p>El agente de escritorio <strong>Nyxo Universal Printer</strong> es el componente nativo que opera localmente en cada estación de cobro o punto de venta bajo Windows 10/11 (64-bit). Se comunica de forma saliente e ininterrumpida con el backend Laravel y despacha los trabajos físicos al hardware sin necesidad de abrir puertos en el router, sin certificados SSL locales y sin máquinas virtuales de Java.</p>
+
+<h3>10.1 Modalidades de Distribución: Instalador Windows vs. Versión Portable</h3>
+<p>Para adaptarse a las políticas de seguridad de cada comercio o infraestructura corporativa, el agente se distribuye en dos compilaciones oficiales:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Característica</th>
+      <th>Instalador Windows (<code>Setup_Win.exe</code>)</th>
+      <th>Versión Portable (<code>Portable.exe</code>)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Nombre de archivo</strong></td>
+      <td><code>Nyxo_Universal_Printer_Setup_Win.exe</code></td>
+      <td><code>Nyxo_Universal_Printer_Portable.exe</code></td>
+    </tr>
+    <tr>
+      <td><strong>Ruta de ejecución</strong></td>
+      <td><code>%LOCALAPPDATA%\Programs\Nyxo Universal Printer</code></td>
+      <td>Cualquier carpeta, escritorio o memoria USB</td>
+    </tr>
+    <tr>
+      <td><strong>Permisos de Administrador</strong></td>
+      <td><span class="badge badge-green">No requeridos</span> (espacio de usuario)</td>
+      <td><span class="badge badge-green">No requeridos</span> (cero instalación)</td>
+    </tr>
+    <tr>
+      <td><strong>Accesos Directos</strong></td>
+      <td>Creados automáticamente en Escritorio y Menú Inicio</td>
+      <td>Manuales (según la carpeta elegida)</td>
+    </tr>
+    <tr>
+      <td><strong>Arranque con Windows</strong></td>
+      <td>Integrado de forma nativa en System Tray</td>
+      <td>Soportado (registra la ruta absoluta del ejecutable)</td>
+    </tr>
+    <tr>
+      <td><strong>Registro de Windows</strong></td>
+      <td>Entrada en "Agregar o quitar programas"</td>
+      <td><span class="badge badge-blue">Cero modificaciones en el registro</span></td>
+    </tr>
+    <tr>
+      <td><strong>Uso recomendado</strong></td>
+      <td><strong>Terminales fijas de venta</strong>, cajas registradoras y producción continua</td>
+      <td><strong>Demostraciones</strong>, soporte técnico y PCs corporativas restringidas</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout callout-info">
+  <div class="callout-title">💡 Recomendación para la Versión Portable</div>
+  Si vas a activar la opción "Arrancar con Windows" en la versión Portable, coloca primero el ejecutable en una carpeta fija y definitiva (por ejemplo, <code>C:\NyxoPrinter\Nyxo_Universal_Printer_Portable.exe</code>) para evitar que el acceso directo de arranque se rompa si mueves el archivo más adelante.
+</div>
+
+<h3>10.2 Auto-Hospedaje y Descarga Directa desde Laravel</h3>
+<p>El paquete <code>nyxo-app/nyxo-printer</code> permite hospedar y servir ambos ejecutables directamente desde tu propio servidor web para garantizar autonomía total sin depender de repositorios externos:</p>
+
+<ul>
+  <li><strong>Rutas Web Registradas:</strong>
+    <ul>
+      <li>Instalador Windows: <code>GET /downloads/Nyxo_Universal_Printer_Setup_Win.exe</code> (<code>route('nyxo-printer.download')</code>)</li>
+      <li>Versión Portable: <code>GET /downloads/Nyxo_Universal_Printer_Portable.exe</code> (<code>route('nyxo-printer.download-portable')</code>)</li>
+    </ul>
+  </li>
+  <li><strong>Ubicación Física:</strong> Colocar los ejecutables en la carpeta pública de Laravel: <code>public/downloads/</code>.</li>
+  <li><strong>Fallback Automático:</strong> Si los archivos no existen localmente, las rutas redirigen de forma transparente al portal oficial <code>https://printer.nyxo.ar</code>.</li>
+</ul>
+
+<pre><code>&lt;!-- Enlace de descarga en Blade --&gt;
+&lt;div class="flex items-center gap-3"&gt;
+    &lt;a href="{{ route('nyxo-printer.download') }}" class="btn-primary"&gt;
+        💻 Descargar Instalador Windows (.exe)
+    &lt;/a&gt;
+    &lt;a href="{{ route('nyxo-printer.download-portable') }}" class="btn-secondary"&gt;
+        📦 Descargar Versión Portable (.exe)
+    &lt;/a&gt;
+&lt;/div&gt;</code></pre>
+
+<div class="page-break"></div>
+
+<h3>10.3 Pestaña 1: Estado del Sistema y Monitoreo en Tiempo Real (<code>status-view</code>)</h3>
+<p>Al abrir la aplicación, la pantalla de inicio presenta la telemetría operativa del agente:</p>
+<ul>
+  <li><strong>Indicador Visual de Estado:</strong>
+    <ul>
+      <li>🟢 <strong>Online / Agente Iniciado:</strong> El agente está activo y comunicándose exitosamente con el backend Laravel cada 5 segundos.</li>
+      <li>🟡 <strong>Verificando / Reconectando:</strong> Intentando enlazar con el servidor tras un corte momentáneo de red.</li>
+      <li>🔴 <strong>Desconectado / Error:</strong> El servidor API no responde o el Token es inválido.</li>
+    </ul>
+  </li>
+  <li><strong>Historial de Actividad en Vivo (Live Console):</strong> Registra cronológicamente cada pulso de sondeo (<code>ping</code>), recepción de trabajos de impresión (<code>PrintJob #ID</code>), despacho físico al hardware y reporte de estado (<code>status = 'printed'</code>).</li>
+  <li><strong>Botón "Limpiar":</strong> Permite vaciar la vista de la consola en pantalla para comenzar una nueva sesión de depuración visual.</li>
+</ul>
+
+<h3>10.4 Pestaña 2: Conexión con el Servidor API (<code>connection-view</code>)</h3>
+<p>Esta sección administra las credenciales seguras de enlace entre el puesto físico y la nube:</p>
+
+<ol>
+  <li><strong>Método Recomendado: Código de Enlace Rápido (1 Clic):</strong>
+    <p>En el panel web de Laravel, al crear o editar un nodo, pulsa "Copiar Código de Enlace". En la aplicación de escritorio, pulsa <strong>"Pegar"</strong> junto al campo <em>Código de Enlace Rápido</em>. El agente decodifica automáticamente la cadena Base64 (<code>URL_API|TOKEN_TERMINAL</code>) rellenando ambos campos al instante.</p>
+  </li>
+  <li><strong>Método Manual:</strong>
+    <ul>
+      <li><strong>URL del Servidor API:</strong> Endpoint REST de sondeo (ejemplo: <code>https://mi-sistema.com/api/v1/print</code> o IP local <code>http://192.168.1.100:8000/api/v1/print</code>).</li>
+      <li><strong>Token de Autenticación / Punto de Venta:</strong> Clave secreta alfanumérica asignada al nodo. Incluye botón <code>👁️</code> para ver u ocultar el secreto.</li>
+    </ul>
+  </li>
+  <li><strong>Diagnóstico en Vivo:</strong>
+    <p>El botón <strong>"🔍 Probar Conexión"</strong> realiza un <code>GET /api/v1/print/ping</code> inmediato, mostrando la latencia en milisegundos y la confirmación del servidor. El botón <strong>"💾 Guardar Conexión"</strong> encripta y persiste las credenciales localmente, activando el bucle de sondeo automático.</p>
+  </li>
+</ol>
+
+<h3>10.5 Pestaña 3: Asignación de Impresoras (Dualidad Spooler Windows y Socket TCP RAW 9100)</h3>
+<p>Nyxo Universal Printer ofrece un modelo de ruteo independiente según el ancho y tipo de papel del documento:</p>
+
+<h4>A. Independencia Total de los 2 Anchos Térmicos y Documentos A4</h4>
+<ul>
+  <li><strong>Ticket Térmico 80 mm (48 columnas):</strong> Ancho estándar de punto de venta (3 pulgadas). Admite tablas completas con columnas alineadas (<code>Cant</code>, <code>Descripción</code>, <code>P.Unit</code>, <code>Total</code>). Ideal para tickets de venta al público y facturas fiscales.</li>
+  <li><strong>Ticket Térmico 58 mm (32 columnas):</strong> Formato estrecho (2 pulgadas). Utiliza maquetación vertical optimizada (<code>Cant</code> x <code>Producto</code> con total en línea inferior). Ideal para comandas de cocina rápida, barras o terminales compactas.</li>
+  <li><strong>Documento A4 (Láser / Inyección):</strong> Hojas sueltas (210 x 297 mm) despachadas de forma desatendida mediante <strong>SumatraPDF</strong> integrado, permitiendo imprimir facturas electrónicas completas en PDF vectorial sin diálogos de usuario.</li>
+</ul>
+
+<h4>B. Arquitectura Dual: Drivers de Windows vs. Red TCP Socket RAW (Sin Drivers)</h4>
+<ul>
+  <li><strong>Canal 1: Impresoras del Spooler de Windows:</strong> Menú desplegable con detección automática de impresoras instaladas (<code>Termica</code>, <code>EPSON TM-T20</code>, <code>Bixolon</code>, <code>POS-80</code>, etc.) inyectando bytes binarios en modo RAW vía <code>winspool.drv</code>.</li>
+  <li><strong>Canal 2: Socket TCP RAW por Red (Puerto 9100 - Driverless):</strong> <strong>¡Cero instalación de drivers en Windows!</strong> Permite ingresar directamente una dirección <code>IP:Puerto</code> (ej: <code>192.168.1.100:9100</code> o <code>127.0.0.1:9100</code>). Abre un socket TCP directo con el hardware y transmite ESC/POS en milisegundos, eliminando bloqueos en el spooler de Windows.</li>
+</ul>
+
+<h4>C. Matriz de Configuraciones Mixtas</h4>
+<table>
+  <thead>
+    <tr>
+      <th>Formato</th>
+      <th>Configuración Híbrida</th>
+      <th>Configuración 100% Sin Drivers</th>
+      <th>Configuración Local USB</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>80 mm (Caja)</strong></td>
+      <td>Windows USB: <code>Termica</code></td>
+      <td>TCP RAW: <code>192.168.1.100:9100</code></td>
+      <td>Windows USB: <code>EPSON TM-T20</code></td>
+    </tr>
+    <tr>
+      <td><strong>58 mm (Cocina)</strong></td>
+      <td>TCP RAW: <code>192.168.1.150:9100</code></td>
+      <td>TCP RAW: <code>192.168.1.105:9100</code></td>
+      <td>Windows USB: <code>POS-58</code></td>
+    </tr>
+    <tr>
+      <td><strong>A4 (Oficina)</strong></td>
+      <td>Windows Láser: <code>HP LaserJet Pro</code></td>
+      <td>Windows Láser: <code>Brother HL-L2360D</code></td>
+      <td>Windows Láser: <code>Canon G3010</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p><em>Utiliza el botón <strong>"🔄 Recargar Lista"</strong> para detectar impresoras USB recién enchufadas al equipo sin tener que cerrar ni reiniciar el programa.</em></p>
+
+<div class="page-break"></div>
+
+<h3>10.6 Pestaña 4: Configuración General y Destino de Red Opcional (<code>settings-view</code>)</h3>
+<ul>
+  <li><strong>Idioma / Language:</strong> Permite alternar la interfaz gráfica y los avisos dinámicamente entre <strong>Español (ES)</strong> e <strong>Inglés (EN)</strong>.</li>
+  <li><strong>Emulador C# / Impresora de Red TCP (Opcional):</strong> Campo opcional que por defecto inicia <strong>completamente vacío</strong>. Si se utiliza el emulador de desarrollo <code>ESSIThermalEmulator</code> o una impresora Ethernet/TCP directa sin drivers, se puede ingresar aquí la dirección (ej: <code>127.0.0.1:9100</code> o <code>192.168.1.100:9100</code>).</li>
+  <li><strong>Comportamiento sin Impresora Asignada:</strong> Si una terminal recibe un trabajo pero el formato no tiene ninguna impresora seleccionada ni destino de red configurado, el agente rechaza el trabajo e informa claramente al operador que debe asignar una impresora en el panel, evitando fallbacks silenciosos a puertos locales no deseados.</li>
+  <li><strong>Arrancar con Windows:</strong> Casilla de verificación para registrar el inicio desatendido al encender la PC, ejecutándose silenciosamente en la bandeja del sistema (System Tray junto al reloj).</li>
+</ul>
+
+<h3>10.7 Pestaña 5: Control de Licencia Comercial y Período de Gracia (<code>license-view</code>)</h3>
+<ul>
+  <li><strong>Gestión Comercial Exclusiva con Lemon Squeezy:</strong> Todas las licencias (tanto la licencia gratuita de desarrollador como las suscripciones y compras vitalicias) son administradas y validadas contra la API oficial de <strong>Lemon Squeezy</strong>. Validación en línea de cupos concurrentes (<code>Terminales utilizadas / Cupo total contratado</code>). Despliega en vivo el Identificador de Terminal (Hardware UID), Nombre del Equipo y Email del Titular con firma criptográfica HMAC enlazada al hardware del equipo, con botón para desvincular la licencia de un puesto y transferirla a otro equipo.</li>
+  <li><strong>Modalidad Desarrollador (Developer Free - $0 USD):</strong> Disponible en la landing page (<code>https://printer.nyxo.ar</code>), otorga 1 licencia gratuita vitalicia por correo electrónico para desarrolladores, emitida formalmente por Lemon Squeezy sin solicitar tarjeta de crédito.</li>
+  <li><strong>Localhost Grace:</strong> Si el servidor configurado en la aplicación apunta estrictamente a un entorno local de desarrollo (<code>localhost</code> o <code>127.0.0.1</code>), el agente permite la impresión libre para pruebas locales sin requerir activación inmediata.</li>
+</ul>
+
+<div class="callout callout-success">
+  <div class="callout-title">🛡️ Resiliencia Operativa: Período de Gracia Offline de 7 Días</div>
+  Si un local comercial pierde el acceso a internet o sufre una caída de telecomunicaciones, el agente activa su <strong>período de gracia offline de 7 días continuos</strong>. Durante este plazo, valida la firma de activación en la caché local y continúa imprimiendo todos los comprobantes físicos con total normalidad, revalidándose de forma transparente al regresar la conexión.
+</div>
+
+<!-- MÓDULO 11 -->
+<h1>11. Control de Concurrencia, Resiliencia y Eventos de Ciclo de Vida</h1>
+
+<h3>11.1 Prevención de Duplicados (Race Conditions)</h3>
+<p>Para evitar que un ticket se imprima dos veces si el cajero hace doble clic o hay microcortes de red, <code>PrintJobApiController::index()</code> utiliza transacciones con bloqueo pesimista:</p>
+<pre><code>$jobs = DB::transaction(function () use ($node) {
+    $pendingJobs = PrintJob::deliverable($node->id)
+        ->lockForUpdate() // Bloqueo exclusivo a nivel de fila
+        ->get();
+
+    if ($pendingJobs->isEmpty()) return collect([]);
+
+    PrintJob::whereIn('id', $pendingJobs->pluck('id'))
+        ->update(['status' => 'processing', 'attempts' => DB::raw('attempts + 1')]);
+
+    return $pendingJobs;
+});</code></pre>
+
+<h3>11.2 Rescate Automático de Trabajos Huérfanos</h3>
+<p>Si una PC sufre un corte de energía mientras imprimía, el trabajo queda en <code>processing</code>. El scope <code>deliverable()</code> reencola automáticamente cualquier trabajo que haya permanecido en <code>processing</code> por más tiempo que <code>config('nyxo-printer.timeout_minutes')</code> (3 minutos por defecto).</p>
+
+<h3>11.3 Purga de Base de Datos (Mantenimiento)</h3>
+<pre><code>// routes/console.php
+use Illuminate\Support\Facades\Schedule;
+
+Schedule::command('nyxo-printer:clean --days=7')->daily();</code></pre>
+
+<h3>11.4 Eventos de Dominio</h3>
+<ul>
+  <li><code>Nyxo\Printer\Events\PrintJobCreated</code>: Disparado al crearse el trabajo en la cola.</li>
+  <li><code>Nyxo\Printer\Events\PrintJobPrinted</code>: Disparado cuando el hardware confirma la impresión física.</li>
+  <li><code>Nyxo\Printer\Events\PrintJobFailed</code>: Disparado ante errores de papel, atasco o desconexión.</li>
+</ul>
+
+<div class="page-break"></div>
+
+<!-- MÓDULO 12 -->
+<h1>12. Guía de Solución de Problemas y Preguntas Frecuentes (FAQ)</h1>
+
+<h3>🔴 ¿Por qué la impresora térmica imprime texto con `%PDF-1.7`?</h3>
+<p><strong>Causa:</strong> Se envió un PDF compilado a una impresora térmica con <code>content_type = 'escpos_base64'</code>. Las comanderas reciben texto RAW y no tienen procesador vectorial de PDF.<br>
+<strong>Solución:</strong> Utilizar la sintaxis fluida de <code>ThermalBuilder</code> o una plantilla. Si obligatoriamente se debe imprimir un PDF en papel térmico, configurar <code>format: 'ticket_80mm'</code> y <code>content_type: 'pdf_base64'</code>; el agente de Windows invocará SumatraPDF para rasterizarlo al ancho del rollo.</p>
+
+<h3>🔴 Error 401 Unauthorized en Servidores Apache / FastCGI</h3>
+<p><strong>Causa:</strong> Apache descarta por defecto la cabecera <code>Authorization: Bearer</code> en entornos sin SSL.<br>
+<strong>Solución:</strong> Agregar en el archivo <code>public/.htaccess</code> de Laravel:</p>
+<pre><code>RewriteEngine On
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]</code></pre>
+
+<h3>🔴 Falla al copiar el Código de Enlace en redes LAN (`navigator.clipboard is undefined`)</h3>
+<p><strong>Causa:</strong> Los navegadores modernos bloquean <code>navigator.clipboard</code> en sitios HTTP no seguros.<br>
+<strong>Solución:</strong> Utilizar un elemento DOM oculto de respaldo:</p>
+<pre><code>window.copiarAlPortapapeles = async function(texto) {
+    if (navigator.clipboard && window.isSecureContext) {
+        try { await navigator.clipboard.writeText(texto); return true; } catch (e) {}
+    }
+    const t = document.createElement('textarea');
+    t.value = texto;
+    t.style.position = 'fixed'; t.style.left = '-9999px';
+    document.body.appendChild(t);
+    t.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(t);
+    return ok;
+};</code></pre>
+
+<h3>🔴 Error en Laravel 13 `MissingAttributeException`</h3>
+<p><strong>Causa:</strong> Laravel 13 activa <code>Model::shouldBeStrict(true)</code> por defecto. Acceder a columnas eliminadas en migraciones antiguas arroja excepción inmediata.<br>
+<strong>Solución:</strong> El paquete oficial <code>nyxo-app/nyxo-printer</code> tiene sus modelos estrictamente higienizados declarando únicamente las columnas existentes en el esquema agnóstico.</p>
+
+<div style="margin-top: 40px; padding-top: 15px; border-top: 1px solid #cbd5e1; text-align: center; font-size: 8pt; color: #64748b;">
+  <strong>Nyxo Universal Printer para Laravel</strong> • Documentación Técnica Oficial v1.0 • Todos los derechos reservados © 2026
+</div>
+
+</body>
+</html>
