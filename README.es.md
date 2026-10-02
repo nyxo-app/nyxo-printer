@@ -53,7 +53,7 @@ Imprimir tickets fiscales, comandas de cocina o comprobantes A4 desde una aplica
 | ❌ **`window.print()`:** Fuerza la ventana de diálogo (`Ctrl+P`), frena a los cajeros y exige presionar Enter manualmente. | 🚀 **Impresión 100% Silenciosa:** Se despacha directamente a la impresora física en **0.2 segundos** sin intervención del usuario. |
 | ❌ **Bloqueos de SSL / Contenido Mixto:** Los navegadores en HTTPS impiden conectar por HTTP plano a `localhost` o IPs de la red local. | 🛡️ **Cero Certificados SSL:** La app en la nube encola los trabajos vía API segura; el agente local los retira e inyecta sin fricciones. |
 | ❌ **Dependencia de Java (QZ Tray):** Exige instalar pesadas máquinas virtuales de Java en cada terminal y lidiar con certificados autofirmados. | 🪶 **Agente Nativo Ultraliviano:** Conexión directa al Spooler de Windows (`winspool.drv`) y a SumatraPDF. Cero Java. |
-| ❌ **Suscripciones Mensuales Eternas (PrintNode):** Costos recurrentes mensuales en dólares por cada máquina cliente conectada. | 🎁 **Amigable con el Desarrollador:** 100% Gratuito e ilimitado para desarrollo local (`localhost`) + 1 Puesto Gratuito permanente para producción. |
+| ❌ **Suscripciones Mensuales Eternas (PrintNode):** Costos recurrentes mensuales en dólares por cada máquina cliente conectada. | 🎁 **Amigable con el Desarrollador:** Puesto permanente a $0 USD vía Lemon Squeezy para desarrollo, pruebas y puesta en marcha. |
 | ❌ **Desperdicio de Papel al Programar:** Necesitas una impresora física en el escritorio solo para calibrar la alineación del ticket. | 🖥️ **Emulador Visual en Pantalla:** Previsualiza y ajusta el diseño del ticket térmico en HTML sin gastar un solo centímetro de papel. |
 
 ---
@@ -82,7 +82,7 @@ Imprimir tickets fiscales, comandas de cocina o comprobantes A4 desde una aplica
 │              Descarga directa en: https://printer.nyxo.ar             │
 │                                                                        │
 │   - Retira los trabajos en segundo plano silenciosamente               │
-│   - Uso gratuito e ilimitado en localhost y *.test                     │
+│   - Puesto Gratuito Permanente para Desarrolladores ($0 Lemon Squeezy) │
 │   - Inyección directa RAW ESC/POS al Spooler de Windows                │
 │   - Inyección de PDFs en A4 silenciosos vía SumatraPDF                 │
 └───────────────────┬───────────────────────────────┬────────────────────┘
