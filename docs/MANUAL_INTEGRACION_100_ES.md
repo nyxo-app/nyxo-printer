@@ -218,7 +218,7 @@ $codigoEnlace = $nodo->codigo_enlace; // O alias $nodo->pairing_string
 Por estricto diseño de seguridad comercial y privacidad multi-inquilino, el agente de escritorio de Nyxo se distribuye en **estado de fábrica 100% limpio y desvinculado**:
 - **Sin URLs ni Tokens Precargados:** Ni la dirección del servidor (`saasUrl`) ni las credenciales secretas del puesto (`tenantToken`) vienen predefinidas. La aplicación inicia vacía esperando la vinculación manual o mediante el código rápido.
 - **Sin Parámetros de Emulador por Defecto (Prioridad Limpia):** Los campos de destino del emulador C# o impresora de red (`emulatorUrl`) inician vacíos. En cajas y puntos de venta reales con ticketeras físicas conectadas por USB/Red, este campo no se utiliza ni interfiere en la operativa. Si durante desarrollo se ingresa una dirección de emulador (ej: `127.0.0.1:9100`), el agente entra automáticamente en **Modo Emulador Exclusivo**, deshabilitando los selectores de impresoras físicas térmicas para mantener la interfaz limpia y redirigiendo todo el tráfico térmico a la ventana del emulador. Al vaciar el campo, las impresoras físicas se rehabilitan de inmediato.
-- **Bloqueo Estricto por Falta de Licencia:** La terminal inicia sin licencia activa. Mientras la terminal no cuente con una licencia válida y activa de Lemon Squeezy, **todas las funciones del agente quedan estrictamente bloqueadas** (pestañas de Estado, Conexión, Impresoras y Configuración inhabilitadas con candados 🔒). La única acción permitida en la aplicación es ingresar y activar la clave de licencia en la pestaña correspondiente. Una vez activada con éxito, la interfaz se desbloquea en su totalidad. Todas las licencias (tanto la modalidad gratuita para desarrolladores como los planes comerciales) se emiten exclusivamente a través de **Lemon Squeezy** (`https://printer.nyxo.ar`).
+- **Bloqueo Estricto por Falta de Licencia:** La terminal inicia sin licencia activa. Mientras la terminal no cuente con una licencia válida y activa de Polar, **todas las funciones del agente quedan estrictamente bloqueadas** (pestañas de Estado, Conexión, Impresoras y Configuración inhabilitadas con candados 🔒). La única acción permitida en la aplicación es ingresar y activar la clave de licencia en la pestaña correspondiente. Una vez activada con éxito, la interfaz se desbloquea en su totalidad. Todas las licencias (tanto la modalidad gratuita para desarrolladores como los planes comerciales) se emiten exclusivamente a través de **Polar** (`https://printer.nyxo.ar`).
 
 #### 🛡️ Primer Inicio en Windows 10/11 (Aviso de SmartScreen)
 Al ejecutar el instalador o la versión portable por primera vez, es normal que Microsoft Defender SmartScreen muestre una ventana azul informativa (*"Windows protegió su PC"*), al tratarse de un ejecutable recién compilado sin un certificado de firma EV corporativo:
@@ -236,7 +236,7 @@ El agente de Nyxo opera como un **servicio desatendido en segundo plano**:
 3. **Método Rápido en 1 Clic (Recomendado):** Pegar el `$nodo->codigo_enlace` (o `$nodo->pairing_string`) generado en el panel web de Laravel dentro del campo **"⚡ Código de Enlace Rápido"** y presionar **Pegar** y **Guardar**. El agente decodifica automáticamente la URL base del servidor y el token secreto.
 4. **Método Manual:** Introducir la URL del endpoint (ej. `https://mi-sistema.com/api/v1/print`) y el `$nodo->print_token`.
 5. En la pestaña **🖨️ Impresoras**, seleccionar la impresora física asignada para cada formato (*Ticket 80mm*, *Ticket 58mm* o *A4*).
-6. En la pestaña **🛡️ Licencia**, ingresar la clave oficial emitida por **Lemon Squeezy** (variante Developer Free de $0 USD o variantes comerciales) y presionar **Activar Licencia**.
+6. En la pestaña **🛡️ Licencia**, ingresar la clave oficial emitida por **Polar** (variante Developer Free de $0 USD o variantes comerciales) y presionar **Activar Licencia**.
 
 ### Monitoreo en Tiempo Real (Heartbeat)
 El agente Windows emite un latido cada 5 segundos hacia `GET /api/v1/print/ping`. Laravel actualiza `last_ping_at` silenciosamente sin disparar observadores (`updateQuietly()`).
@@ -944,12 +944,12 @@ Para evitar confusiones entre impresoras físicas reales y el entorno de desarro
 
 ### 10.7 Pestaña 5: Control de Licencia Comercial y Período de Gracia (`license-view`)
 
-- **Gestión Comercial Exclusiva con Lemon Squeezy:**
-  - Todas las licencias (tanto la licencia gratuita de desarrollador como las suscripciones y compras vitalicias) son administradas y validadas contra la API oficial de **Lemon Squeezy**.
+- **Gestión Comercial Exclusiva con Polar:**
+  - Todas las licencias (tanto la licencia gratuita de desarrollador como las suscripciones y compras vitalicias) son administradas y validadas contra la API oficial de **Polar**.
   - Validación en línea de cupos de terminales activas (`Terminales utilizadas / Cupo total contratado`).
   - Tarjeta de información en vivo: Identificador de Terminal (Hardware UID), Nombre del Equipo, Cupo de Puestos, Email del Titular y Estado de Activación con firma criptográfica HMAC enlazada al hardware del equipo.
 - **Modalidad Desarrollador (Developer Free - $0 USD):**
-  - Disponible en la landing page (`https://printer.nyxo.ar`), otorga 1 licencia gratuita vitalicia por correo electrónico para desarrolladores, emitida formalmente por Lemon Squeezy sin solicitar tarjeta de crédito.
+  - Disponible en la landing page (`https://printer.nyxo.ar`), otorga 1 licencia gratuita vitalicia por correo electrónico para desarrolladores, emitida formalmente por Polar sin solicitar tarjeta de crédito.
 - **Mecanismo de Bloqueo Estricto por Falta de Licencia:**
   - El agente implementa una política de cumplimiento estricto: **sin una licencia activa y verificada, el usuario no puede realizar ninguna acción en la aplicación excepto cargar y activar su clave de licencia**.
   - Todas las demás pestañas de la interfaz (`Estado`, `Conexión`, `Impresoras`, `Configuración`) se bloquean visual y funcionalmente (atenuadas al 35%, con cursor de no permitido, indicador 🔒 y tooltip de advertencia). Si el usuario intenta hacer clic sobre cualquier sección bloqueada, el sistema emite un aviso interactivo y redirige a la pestaña de Licencia.

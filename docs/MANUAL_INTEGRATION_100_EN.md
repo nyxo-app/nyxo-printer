@@ -218,7 +218,7 @@ $pairingString = $node->pairing_string; // Or alias $node->codigo_enlace
 By strict security and multi-tenant isolation design, the official client application is distributed **100% clean and unlinked by default**:
 - **Zero Preloaded URLs or Tokens:** Neither the SaaS server endpoint (`saasUrl`) nor secret terminal tokens (`tenantToken`) come pre-configured. The desktop application starts completely empty, waiting for operator pairing via 1-click token or manual entry.
 - **Zero Preloaded Emulator Parameters (Clean Priority):** The emulator and network printer address fields (`emulatorUrl`) start completely empty. On real production retail workstations with physical USB/Network thermal printers, this field is not used. If an emulator address is configured during development (e.g. `127.0.0.1:9100`), the agent automatically activates **Exclusive Emulator Mode**, cleanly disabling physical thermal printer selectors and routing 100% of thermal receipt jobs to the on-screen emulator. Clearing the field instantly restores physical printers.
-- **Strict Zero-License Lockout Mode:** The workstation starts without an active license. As long as the terminal lacks an active, verified Lemon Squeezy license key, **all agent operations and navigation tabs are strictly locked** (Status, Connection, Printers, and Settings tabs are disabled with padlock indicators 🔒). The sole permitted action in the entire application is entering and activating a license key in the License tab. Once successfully activated, all views and background polling instantly unlock. All licenses (both the $0 USD Developer Free tier and commercial editions) are issued exclusively via **Lemon Squeezy** (`https://printer.nyxo.ar`).
+- **Strict Zero-License Lockout Mode:** The workstation starts without an active license. As long as the terminal lacks an active, verified Polar license key, **all agent operations and navigation tabs are strictly locked** (Status, Connection, Printers, and Settings tabs are disabled with padlock indicators 🔒). The sole permitted action in the entire application is entering and activating a license key in the License tab. Once successfully activated, all views and background polling instantly unlock. All licenses (both the $0 USD Developer Free tier and commercial editions) are issued exclusively via **Polar** (`https://printer.nyxo.ar`).
 
 #### 🛡️ First Launch on Windows 10/11 (SmartScreen Notice)
 When running the installer or portable version for the first time, Windows Defender SmartScreen may display a blue dialog (*"Windows protected your PC"*). This is standard for newly distributed binaries that do not carry costly EV enterprise code-signing certificates:
@@ -236,7 +236,7 @@ Nyxo Universal Printer operates as an **unattended background service**:
 3. **1-Click Quick Pairing (Recommended):** Paste the `$node->pairing_string` (or `$node->codigo_enlace`) generated from the Laravel admin panel into the **"⚡ Quick Pairing Code"** field and click **Paste** and **Save**. The agent automatically unpacks the SaaS API URL and secret token.
 4. **Manual Method:** Enter the API URL (e.g. `https://my-pos.com/api/v1/print`) and paste `$node->print_token`.
 5. In the **🖨️ Printers** tab, select the physical device assigned for each format (*Ticket 80mm*, *Ticket 58mm*, or *Office A4*).
-6. In the **🛡️ License** tab, enter your license key issued by **Lemon Squeezy** (Developer Free $0 USD or Commercial plans) and click **Activate License**.
+6. In the **🛡️ License** tab, enter your license key issued by **Polar** (Developer Free $0 USD or Commercial plans) and click **Activate License**.
 
 ### Real-Time Heartbeat Monitoring
 The desktop agent sends an automated heartbeat every 5 seconds to `GET /api/v1/print/ping`. Laravel updates `last_ping_at` quietly without firing Eloquent model observers (`updateQuietly()`).
@@ -927,12 +927,12 @@ To prevent confusion between physical hardware and testing environments, the age
 
 ### 10.7 Tab 5: Commercial License Control & Offline Grace Period (`license-view`)
 
-- **Exclusive Lemon Squeezy Licensing:**
-  - All licenses (including the free Developer tier and commercial subscriptions/lifetime plans) are managed and validated exclusively against the official **Lemon Squeezy** API.
+- **Exclusive Polar Licensing:**
+  - All licenses (including the free Developer tier and commercial subscriptions/lifetime plans) are managed and validated exclusively against the official **Polar** API.
   - Real-time online validation of concurrent terminal seats (`Assigned seats / Total purchased quota`).
   - Displays Hardware Terminal UID, Computer Hostname, Plan Type, and Registered Licensee Email, protected with a cryptographic HMAC hardware signature.
 - **Developer Mode (Developer Free - $0 USD):**
-  - Claimable at `https://printer.nyxo.ar`, granting 1 free lifetime license per developer email, issued formally via Lemon Squeezy without requiring credit card details.
+  - Claimable at `https://printer.nyxo.ar`, granting 1 free lifetime license per developer email, issued formally via Polar without requiring credit card details.
 - **Strict Zero-License Lockout Mechanism:**
   - The client agent enforces a zero-trust compliance model: **without an active and verified license key, the operator cannot perform any action within the application except entering and activating their license key**.
   - All other navigation tabs (`Status`, `Connection`, `Printers`, `Settings`) are visually and functionally locked (dimmed to 35% opacity, disabled cursor, 🔒 lock indicator, and warning tooltips). Clicking on any locked section alerts the user and redirects them immediately to the License tab.

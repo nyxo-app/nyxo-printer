@@ -53,7 +53,7 @@ Printing physical receipts, kitchen orders, barcodes, or A4 invoices from modern
 | ❌ **`window.print()`:** Forces browser dialogs (`Ctrl+P`), freezes cashiers, and requires manual Enter keystrokes. | 🚀 **100% Silent Instant Printing:** Dispatches directly to hardware in **0.2 seconds** without user intervention. |
 | ❌ **Mixed Content / SSL Blocks:** Cloud HTTPS apps cannot connect to plain HTTP `localhost` or local LAN printer IPs. | 🛡️ **Zero SSL Certificates Required:** Cloud applications enqueue jobs safely via standard REST API; the local desktop agent pulls them seamlessly. |
 | ❌ **Java & Certificate Hell (QZ Tray):** Demands heavy JRE installations on client terminals and self-signed certs. | 🪶 **Native Lightweight Desktop Agent:** Native Windows spooler (`winspool.drv`) & SumatraPDF integration. No Java required. |
-| ❌ **Perpetual Monthly Subscriptions (PrintNode):** Expensive recurring monthly charges for every single terminal. | 🎁 **Developer Friendly:** Free permanent developer seat ($0 USD via Lemon Squeezy) for testing and development. |
+| ❌ **Perpetual Monthly Subscriptions (PrintNode):** Expensive recurring monthly charges for every single terminal. | 🎁 **Developer Friendly:** Free permanent developer seat ($0 USD via Polar) for testing and development. |
 | ❌ **Wasted Paper During Development:** You need a physical printer on your desk just to adjust ticket layout. | 🖥️ **In-Screen Visual Emulator:** Preview and debug thermal tickets in HTML or on a virtual POS screen without wasting paper. |
 
 ---
@@ -82,7 +82,7 @@ Printing physical receipts, kitchen orders, barcodes, or A4 invoices from modern
 │                 Download from: https://printer.nyxo.ar                │
 │                                                                        │
 │   - Pulls print jobs silently in background                            │
-│   - Permanent Free Developer Seat ($0 USD via Lemon Squeezy)           │
+│   - Permanent Free Developer Seat ($0 USD via Polar)                   │
 │   - Injects RAW ESC/POS commands directly to Windows Spooler           │
 │   - Injects A4 PDFs silently via background SumatraPDF                 │
 └───────────────────┬───────────────────────────────┬────────────────────┘
@@ -126,7 +126,7 @@ At your client's physical retail terminals (cashier counters, kitchens, dispatch
 
 > ⚠️ **IMPORTANT:** On the client's PC, **ONLY the `Nyxo Universal Printer` executable is installed**:
 > 1. The store owner or technician downloads and runs the official Windows installer (`.exe`).
-> 2. Enters your Laravel application URL and the Commercial License Key purchased from Lemon Squeezy ($99, $199, or $399 USD).
+> 2. Enters your Laravel application URL and the Commercial License Key purchased from Polar ($99, $199, or $399 USD).
 > 3. Done! The physical terminal prints instantly and silently without any browser print popups (`Ctrl+P`).
 
 ---
@@ -497,4 +497,4 @@ return [
 ## 📄 License
 
 The Nyxo Universal Printer Laravel Package is open-sourced software licensed under the [MIT License](LICENSE.md).  
-The Nyxo Universal Printer Desktop Agent is proprietary commercial software licensed via [Lemon Squeezy](https://printer.nyxo.ar).
+The Nyxo Universal Printer Desktop Agent is proprietary commercial software licensed via [Polar](https://printer.nyxo.ar).
