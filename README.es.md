@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://printer.nyxo.ar">
-    <img src="https://raw.githubusercontent.com/nyxo-app/nyxo-printer/main/art/banner.png" alt="Nyxo Universal Printer Banner" width="100%" onerror="this.style.display='none'">
+    <img src="https://raw.githubusercontent.com/nyxo-app/nyxo-printer/main/art/logo.png" alt="Nyxo Universal Printer Logo" width="140">
   </a>
 </p>
 
@@ -41,6 +41,13 @@
   </a>
 </p>
 
+<p align="center">
+  <a href="https://youtu.be/YlqwzSZbL28" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.youtube.com/vi/YlqwzSZbL28/maxresdefault.jpg" alt="Ver Demo en Hardware Real" width="90%" style="border-radius: 8px;">
+  </a>
+  <br>
+  <em>⚡ <strong>Hardware Real en Acción:</strong> Mira cómo Laravel dispara la impresión a una térmica Xprinter de 80mm sin cuadros de diálogo ni bloqueos de navegador.</em>
+</p>
 
 ---
 
@@ -96,6 +103,12 @@ Imprimir tickets fiscales, comandas de cocina o comprobantes A4 desde una aplica
     │  • Apertura de cajón RJ11     │   │  • Calidad gráfica vectorial  │
     └───────────────────────────────┘   └───────────────────────────────┘
 ```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/nyxo-app/nyxo-printer/main/art/ticket-test-xprinter.jpg" alt="Validación de Impresión Física en Xprinter 80mm ESC/POS" width="460" style="border-radius: 8px;">
+  <br>
+  <em>🧾 <strong>Validación de Impresión en Hardware Real (Xprinter 80mm ESC/POS):</strong> Códigos QR, código de barras CODE128, acentos en español (ñ, á, é), doble ancho y alto, y corte automático de papel.</em>
+</p>
 
 ## 🚀 Flujo de Implementación: Entorno de Desarrollo vs. Producción
 
